@@ -38,6 +38,7 @@ const allOptions = () => {
           "View All Employees",
           "View All Employees By Department",
           "View All Employees By Manager",
+          "View All Departments",
           "Add an Employee",
           "Remove an Employee",
           "Update Employee Role",
@@ -45,6 +46,7 @@ const allOptions = () => {
           "View All Roles",
           "Add Role",
           "Remove Role",
+          "Remove Department",
           "Exit",
         ],
       },
@@ -57,6 +59,8 @@ const allOptions = () => {
         viewAllEmployeesByDept();
       } else if (answer.select_option === "View All Employees By Manager") {
         viewAllEmployeesByManager();
+      } else if (answer.select_option === "View All Departments") {
+        viewAllDepartments();
       } else if (answer.select_option === "Add an Employee") {
         addEmployee();
       } else if (answer.select_option === "Remove an Employee") {
@@ -71,6 +75,8 @@ const allOptions = () => {
         addRole();
       } else if (answer.select_option === "Remove Role") {
         removeRole();
+      } else if (answer.select_option === "Remove Department") {
+        removeDepartment();
       } else if (answer.select_option === "Exit") {
         connection.end();
       } else connection.end();
@@ -314,4 +320,35 @@ const addRole = () => {
         viewAllEmployees();
       });
     });
+};
+
+const removeDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "remove_department",
+        type: "input",
+        message: "enter department id to remove:",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM departments WHERE department_id = ?",
+        answer.remove_department,
+        (err, res) => {
+          console.log("department removed");
+          console.log("*****");
+          viewAllDepartments();
+          console.log("*****");
+        }
+      );
+    });
+};
+
+const viewAllDepartments = () => {
+  connection.query("SELECT * FROM departments", (err, res) => {
+    console.table(res);
+    console.log("*****");
+    allOptions();
+  })
 };
