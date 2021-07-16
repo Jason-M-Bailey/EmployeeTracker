@@ -67,6 +67,8 @@ const allOptions = () => {
         updateEmployeesManager();
       } else if (answer.select_option === "View All Roles") {
         viewAllRoles();
+      } else if (answer.select_option === "Add Role") {
+        addRole();
       } else if (answer.select_option === "Remove Role") {
         removeRole();
       } else if (answer.select_option === "Exit") {
@@ -249,5 +251,67 @@ const viewAllRoles = () => {
     console.log("*****");
     allOptions();
   });
+};
+
+function newRoleInfo(role_name, role_salary, role_department) {
+  if (!(this instanceof newRoleInfo)) {
+    return new newRoleInfo(title, salary, department_id);
+  }
+  this.title = role_name;
+  this.salary = role_salary;
+  this.department_id = role_department;
 }
 
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "role_name",
+        type: "input",
+        message: "what is the name of the role:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "role_salary",
+        type: "input",
+        message: "what is the salary for the role:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "salaries must be a number greater than zero";
+        },
+      },
+      {
+        name: "role_department",
+        type: "input",
+        message: "what is the department id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+    ])
+    .then(function (user) {
+      var newRole = new newRoleInfo(
+        user.role_name,
+        user.role_salary,
+        user.role_department
+      );
+      connection.query("INSERT INTO roles SET ?", newRole, function (err, res) {
+        if (err) throw err;
+        console.log("new role added");
+        console.log("*****");
+        viewAllEmployees();
+      });
+    });
+};
