@@ -82,9 +82,100 @@ const viewAllEmployees = () => {
   });
 };
 
+function NewEmployeeInfo(employee_first_name, employee_last_name, employee_role, employee_department, employee_salary, employees_manager) {
+  if (!(this instanceof NewEmployeeInfo)) {
+    return new NewEmployeeInfo(first_name, last_name, role, department, salary, manager);
+  }
+  this.first_name = employee_first_name;
+  this.last_name = employee_last_name;
+  this.role = employee_role;
+  this.department = employee_department;
+  this.salary = employee_salary;
+  this.manager = employees_manager;
+}
+
 const addEmployee = () => {
-  console.log("getting there great work bro");
-  connection.end();
+  inquirer.prompt([
+    {
+      name: "employee_first_name",
+      type: "input",
+      message: "what is the employee's first name:",
+      validate: (answer) => {
+        if (answer !== "") {
+          return true;
+        }
+        return "Names must have one character or more.";
+      },
+    },
+    {
+      name: "employee_last_name",
+      type: "input",
+      message: "what is the employee's last name:",
+      validate: (answer) => {
+        if (answer !== "") {
+          return true;
+        }
+        return "Names must have one character or more.";
+      },
+    },
+    {
+      name: "employee_role",
+      type: "list",
+      message: "select the employee's role:",
+      choices: [
+        "Developer",
+        "Full Stack Developer",
+        "Lawyer",
+        "Sales Rep",
+        "Sales Associate",
+      ],
+    },
+    {
+      name: "employee_department",
+      type: "list",
+      message: "what department does the employee work in:",
+      choices: [
+        "Engineering",
+        "Legal",
+        "Sales",
+        "Marketing",
+        "Customer Service",
+      ],
+    },
+    {
+      name: "employee_salary",
+      type: "input",
+      message: "what is the employee's salary:",
+      validate: (answer) => {
+        const pass = answer.match(/^[1-9]\d*$/);
+        if (pass) {
+          return true;
+        }
+        return "salaries must be a number greater than zero";
+      },
+    },
+    {
+      name: "employees_manager",
+      type: "input",
+      message: "who is the employee's manager:",
+      // can we turn this into a list?
+      // list current employees and add a function for addNewManager()
+    }
+  ])
+  .then(function (user) {
+    var newEmployee = new NewEmployeeInfo(user.employee_first_name, user.employee_last_name, user.employee_role, user.employee_department, user.employee_salary, user.employees_manager);
+    connection.query(
+      "INSERT INTO employees SET ?",
+      newEmployee,
+      function (err, res) {
+        if (err) throw err;
+        console.log("new employee added to database");
+        viewAllEmployees();
+      }
+    )
+  })
+  // console.log("getting there great work bro");
+  // allOptions();
 };
 
 const removeEmployee = () => {
