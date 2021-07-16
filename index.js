@@ -82,9 +82,7 @@ const viewAllEmployees = () => {
   });
 };
 
-const viewAllEmployeesByDept = () => {
-
-}
+const viewAllEmployeesByDept = () => {};
 
 function NewEmployeeInfo(
   employee_first_name,
@@ -196,7 +194,7 @@ const addEmployee = () => {
         function (err, res) {
           if (err) throw err;
           console.log("new employee added to database");
-          console.log("*****")
+          console.log("*****");
           viewAllEmployees();
         }
       );
@@ -207,5 +205,36 @@ const addEmployee = () => {
 
 const removeEmployee = () => {
   console.log("remove employee option chosen");
-  connection.end();
+  // viewAllEmployees();
+  inquirer
+    .prompt([
+      {
+        name: "select_employee",
+        type: "input",
+        message: "enter employee id to remove:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "id must be a number greater than zero";
+        },
+      },
+    ])
+
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM employees WHERE id = ?",
+        answer.select_employee,
+        (err, res) => {
+          
+          console.log("employee removed");
+          console.log("*****")
+          viewAllEmployees();
+        }
+      );
+    });
+
+  // inside the .then statement
+  // allOptions();
 };
