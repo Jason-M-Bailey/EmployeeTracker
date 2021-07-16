@@ -78,6 +78,9 @@ const allOptions = () => {
 const viewAllEmployees = () => {
   connection.query("SELECT * FROM employees", (err, res) => {
     console.table(res);
+    console.log("*****");
+    console.log("*****");
+    console.log("*****");
     allOptions();
   });
 };
@@ -227,9 +230,8 @@ const removeEmployee = () => {
         "DELETE FROM employees WHERE id = ?",
         answer.select_employee,
         (err, res) => {
-          
           console.log("employee removed");
-          console.log("*****")
+          console.log("*****");
           viewAllEmployees();
         }
       );
@@ -238,3 +240,14 @@ const removeEmployee = () => {
   // inside the .then statement
   // allOptions();
 };
+
+const viewAllRoles = () => {
+  connection.query("SELECT * FROM roles", (err, res) => {
+    console.table(res);
+    console.log("*****");
+    console.log("*****");
+    console.log("*****");
+    allOptions();
+  });
+}
+
