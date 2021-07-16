@@ -29,28 +29,47 @@ connection.connect((err) => {
 const viewAllEmployees = () => {
   connection.query("SELECT * FROM employees", (err, res) => {
     console.table(res);
-    connection.end();
+    allOptions();
   });
 };
 
-// const viewAllEmployees = () => {
-//     inquirer
-//       .prompt([
-//         {
-//           name: "view_all_employees",
-//           type: "input",
-//           message: "how many employees would you like to view:",
-//         },
-//       ])
+const allOptions = () => {
+  inquirer
+    .prompt([
+      {
+        name: "select_option",
+        type: "list",
+        message: "what would you like to do next:",
+        choices: [
+          "View All Employees",
+          "View All Employees By Department",
+          "View All Employees By Manager",
+          "Add an Employee",
+          "Remove an Employee",
+          "Update Employee Role",
+          "Update Employee's Manager",
+          "View All Roles",
+          "Add Role",
+          "Remove Role",
+        ],
+      },
+    ])
 
-//       .then((answer) => {
-//         connection.query(
-//           "SELECT * FROM employees WHERE LIMIT = ?",
-//           answer.view_all_employees,
-//           (err, res) => {
-//             console.table(res);
-//             connection.end();
-//           }
-//         );
-//       });
-//   };
+    .then((answer) => {
+      if (answer.select_option === "Add an Employee") {
+        addEmployee();
+      } else if (answer.select_option === "Remove an Employee") {
+        removeEmployee();
+      } else connection.end();
+    });
+};
+
+const addEmployee = () => {
+  console.log("getting there great work bro");
+  connection.end();
+};
+
+const removeEmployee = () => {
+  console.log("remove employee option chosen");
+  connection.end();
+};
