@@ -23,15 +23,9 @@ connection.connect((err) => {
   console.log(`connected as id ${connection.threadId}`);
   console.log("*****");
   console.log("Lets view all employees to get started");
+  console.log("*****");
   viewAllEmployees();
 });
-
-const viewAllEmployees = () => {
-  connection.query("SELECT * FROM employees", (err, res) => {
-    console.table(res);
-    allOptions();
-  });
-};
 
 const allOptions = () => {
   inquirer
@@ -51,17 +45,41 @@ const allOptions = () => {
           "View All Roles",
           "Add Role",
           "Remove Role",
+          "Exit",
         ],
       },
     ])
 
     .then((answer) => {
-      if (answer.select_option === "Add an Employee") {
+      if (answer.select_option === "View All Employees") {
+        viewAllEmployees();
+      } else if (answer.select_option === "View All Employees By Department") {
+        viewAllEmployeesByDept();
+      } else if (answer.select_option === "View All Employees By Manager") {
+        viewAllEmployeesByManager();
+      } else if (answer.select_option === "Add an Employee") {
         addEmployee();
       } else if (answer.select_option === "Remove an Employee") {
         removeEmployee();
+      } else if (answer.select_option === "Update Employee Role") {
+        updateEmployeeRole();
+      } else if (answer.select_option === "Update Employee's Manager") {
+        updateEmployeesManager();
+      } else if (answer.select_option === "View All Roles") {
+        viewAllRoles();
+      } else if (answer.select_option === "Remove Role") {
+        removeRole();
+      } else if (answer.select_option === "Exit") {
+        connection.end();
       } else connection.end();
     });
+};
+
+const viewAllEmployees = () => {
+  connection.query("SELECT * FROM employees", (err, res) => {
+    console.table(res);
+    allOptions();
+  });
 };
 
 const addEmployee = () => {
