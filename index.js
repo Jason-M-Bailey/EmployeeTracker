@@ -91,8 +91,6 @@ const viewAllEmployees = () => {
   });
 };
 
-const viewAllEmployeesByDept = () => {};
-
 class NewEmployeeInfo {
   constructor(
     employee_first_name,
