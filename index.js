@@ -96,12 +96,14 @@ const viewAllEmployees = () => {
 const viewAllEmployeesByDept = () => {};
 
 class NewEmployeeInfo {
-  constructor(employee_first_name,
+  constructor(
+    employee_first_name,
     employee_last_name,
     employee_role,
     employee_department,
     employee_salary,
-    employees_manager) {
+    employees_manager
+  ) {
     if (!(this instanceof NewEmployeeInfo)) {
       return new NewEmployeeInfo(
         first_name,
@@ -128,6 +130,8 @@ const addEmployee = () => {
         name: "employee_first_name",
         type: "input",
         message: "what is the employee's first name:",
+        // splice first letter .toUpperCase then .join
+        // function capitalizeFirstLetter(string) {return string.charAt(0).toUpperCase() + string.slice(1);}
         validate: (answer) => {
           if (answer !== "") {
             return true;
@@ -151,6 +155,7 @@ const addEmployee = () => {
         type: "list",
         message: "select the employee's role:",
         choices: [
+          // how to pull options from existing array and add option to create new role
           "Developer",
           "Full Stack Developer",
           "Lawyer",
@@ -163,6 +168,7 @@ const addEmployee = () => {
         type: "list",
         message: "what department does the employee work in:",
         choices: [
+          // how to pull options from existing array and add option to create new department
           "Engineering",
           "Legal",
           "Sales",
@@ -174,6 +180,7 @@ const addEmployee = () => {
         name: "employee_salary",
         type: "input",
         message: "what is the employee's salary:",
+        // should this value default to the role's salary?
         validate: (answer) => {
           const pass = answer.match(/^[1-9]\d*$/);
           if (pass) {
@@ -186,14 +193,13 @@ const addEmployee = () => {
         name: "employees_manager",
         type: "input",
         message: "who is the employee's manager:",
+        // how to pull manager list from array and add option to create new manager
         validate: (answer) => {
           if (answer !== "") {
             return true;
           }
           return "Names must have one character or more.";
         },
-        // can we turn this into a list?
-        // list current employees and add a function for addNewManager()
       },
     ])
     .then(function (user) {
@@ -216,8 +222,6 @@ const addEmployee = () => {
         }
       );
     });
-  // console.log("getting there great work bro");
-  // allOptions();
 };
 
 const removeEmployee = () => {
