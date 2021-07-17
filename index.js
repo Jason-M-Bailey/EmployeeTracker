@@ -87,8 +87,6 @@ const viewAllEmployees = () => {
   connection.query("SELECT * FROM employees", (err, res) => {
     console.table(res);
     console.log("*****");
-    console.log("*****");
-    console.log("*****");
     allOptions();
   });
 };
@@ -124,16 +122,14 @@ class NewEmployeeInfo {
 }
 
 const addEmployee = () => {
-  // query database to create roles array 
   let rolesArray = [];
 
   connection.query("SELECT title FROM roles", (err, res) => {
-    // console.log(res);
-    console.log("*****");
-    rolesArray.push(res);
-    console.log(rolesArray);
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].title);
+    }
   });
-  
+
   inquirer
     .prompt([
       {
@@ -164,14 +160,7 @@ const addEmployee = () => {
         name: "employee_role",
         type: "list",
         message: "select the employee's role:",
-        choices: [rolesArray],
-        // [
-          // "Developer",
-          // "Full Stack Developer",
-          // "Lawyer",
-          // "Sales Rep",
-          // "Sales Associate",
-        // ],
+        choices: rolesArray,
       },
       {
         name: "employee_department",
