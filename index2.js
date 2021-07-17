@@ -167,29 +167,26 @@ const addEmployee = () => {
 };
 
 const removeEmployee = () => {
-  let employeesArray = [];
-
-  connection.query("SELECT first_name, last_name FROM employees", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      employeesArray.push(res[i].first_name);
-    }
-    console.log(employeesArray);
-  });
-
   console.log("remove employee option chosen");
   inquirer
     .prompt([
       {
         name: "select_employee",
-        type: "list",
-        message: "select employee to remove:",
-        choices: employeesArray,
+        type: "input",
+        message: "enter employee id to remove:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "id must be a number greater than zero";
+        },
       },
     ])
 
     .then((answer) => {
       connection.query(
-        "DELETE FROM employees WHERE first_name = ?",
+        "DELETE FROM employees WHERE id = ?",
         answer.select_employee,
         (err, res) => {
           console.log("employee removed");
@@ -197,5 +194,70 @@ const removeEmployee = () => {
           viewAllEmployees();
         }
       );
+    });
+};
+
+class newRoleInfo {
+  constructor(role_name, role_salary, role_department) {
+    if (!(this instanceof newRoleInfo)) {
+      return new newRoleInfo(title, salary, department_id);
+    }
+    this.title = role_name;
+    this.salary = role_salary;
+    this.department_id = role_department;
+  }
+}
+
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "role_name",
+        type: "input",
+        message: "what is the name of the role:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "role_salary",
+        type: "input",
+        message: "what is the salary for the role:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "salaries must be a number greater than zero";
+        },
+      },
+      {
+        name: "role_department",
+        type: "input",
+        message: "what is the department id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+    ])
+    .then(function (user) {
+      var newRole = new newRoleInfo(
+        user.role_name,
+        user.role_salary,
+        user.role_department
+      );
+      connection.query("INSERT INTO roles SET ?", newRole, function (err, res) {
+        if (err) throw err;
+        console.log("new role added");
+        console.log("*****");
+        viewAllEmployees();
+      });
     });
 };
