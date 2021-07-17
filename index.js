@@ -95,30 +95,30 @@ const viewAllEmployees = () => {
 
 const viewAllEmployeesByDept = () => {};
 
-function NewEmployeeInfo(
-  employee_first_name,
-  employee_last_name,
-  employee_role,
-  employee_department,
-  employee_salary,
-  employees_manager
-) {
-  if (!(this instanceof NewEmployeeInfo)) {
-    return new NewEmployeeInfo(
-      first_name,
-      last_name,
-      role,
-      department,
-      salary,
-      manager
-    );
+class NewEmployeeInfo {
+  constructor(employee_first_name,
+    employee_last_name,
+    employee_role,
+    employee_department,
+    employee_salary,
+    employees_manager) {
+    if (!(this instanceof NewEmployeeInfo)) {
+      return new NewEmployeeInfo(
+        first_name,
+        last_name,
+        role,
+        department,
+        salary,
+        manager
+      );
+    }
+    this.first_name = employee_first_name;
+    this.last_name = employee_last_name;
+    this.role = employee_role;
+    this.department = employee_department;
+    this.salary = employee_salary;
+    this.manager = employees_manager;
   }
-  this.first_name = employee_first_name;
-  this.last_name = employee_last_name;
-  this.role = employee_role;
-  this.department = employee_department;
-  this.salary = employee_salary;
-  this.manager = employees_manager;
 }
 
 const addEmployee = () => {
@@ -186,6 +186,12 @@ const addEmployee = () => {
         name: "employees_manager",
         type: "input",
         message: "who is the employee's manager:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
         // can we turn this into a list?
         // list current employees and add a function for addNewManager()
       },
@@ -259,13 +265,15 @@ const viewAllRoles = () => {
   });
 };
 
-function newRoleInfo(role_name, role_salary, role_department) {
-  if (!(this instanceof newRoleInfo)) {
-    return new newRoleInfo(title, salary, department_id);
+class newRoleInfo {
+  constructor(role_name, role_salary, role_department) {
+    if (!(this instanceof newRoleInfo)) {
+      return new newRoleInfo(title, salary, department_id);
+    }
+    this.title = role_name;
+    this.salary = role_salary;
+    this.department_id = role_department;
   }
-  this.title = role_name;
-  this.salary = role_salary;
-  this.department_id = role_department;
 }
 
 const addRole = () => {
@@ -350,5 +358,5 @@ const viewAllDepartments = () => {
     console.table(res);
     console.log("*****");
     allOptions();
-  })
+  });
 };
