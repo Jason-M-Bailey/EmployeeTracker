@@ -124,6 +124,16 @@ class NewEmployeeInfo {
 }
 
 const addEmployee = () => {
+  // query database to create roles array 
+  let rolesArray = [];
+
+  connection.query("SELECT title FROM roles", (err, res) => {
+    // console.log(res);
+    console.log("*****");
+    rolesArray.push(res);
+    console.log(rolesArray);
+  });
+  
   inquirer
     .prompt([
       {
@@ -154,14 +164,14 @@ const addEmployee = () => {
         name: "employee_role",
         type: "list",
         message: "select the employee's role:",
-        choices: [
-          // how to pull options from existing array and add option to create new role
-          "Developer",
-          "Full Stack Developer",
-          "Lawyer",
-          "Sales Rep",
-          "Sales Associate",
-        ],
+        choices: [rolesArray],
+        // [
+          // "Developer",
+          // "Full Stack Developer",
+          // "Lawyer",
+          // "Sales Rep",
+          // "Sales Associate",
+        // ],
       },
       {
         name: "employee_department",
