@@ -83,6 +83,7 @@ const allOptions = () => {
     });
 };
 
+// functional
 const viewAllEmployees = () => {
   connection.query(
     "SELECT id, first_name, last_name, employees.role_title, role_salary, department_name, manager FROM employees LEFT JOIN roles ON employees.role_title = roles.role_title LEFT JOIN departments ON roles.department_id = departments.department_id ORDER BY id;",
@@ -94,6 +95,16 @@ const viewAllEmployees = () => {
   );
 };
 
+// NOT FUNCTIONAL
+const viewAllEmployeesByDept = () => {}
+
+// NOT FUNCTIONAL
+const viewAllEmployeesByManager = () => {}
+
+// NOT FUNCTIONAL
+const viewAllDepartments = () => {}
+
+// functional
 class NewEmployeeInfo {
   constructor(employee_first_name, employee_last_name, employee_role_title) {
     if (!(this instanceof NewEmployeeInfo)) {
@@ -105,6 +116,7 @@ class NewEmployeeInfo {
   }
 }
 
+// functional
 const addEmployee = () => {
   let rolesArray = [];
 
@@ -166,6 +178,7 @@ const addEmployee = () => {
     });
 };
 
+// functional - removed employee by id instead of list
 const removeEmployee = () => {
   console.log("remove employee option chosen");
   inquirer
@@ -197,17 +210,32 @@ const removeEmployee = () => {
     });
 };
 
+// NOT FUNCTIONAL
+const updateEmployeeRole = () => {}
+
+// NOT FUNCTIONAL
+const updateEmployeesManager = () => {}
+
+// functional
+const viewAllRoles = () => {
+    connection.query("SELECT * FROM roles ", (err, res) => {
+        console.table(res);
+        allOptions();
+    })
+}
+
+// NOT FUNCTIONAL
 class newRoleInfo {
   constructor(role_name, role_salary, role_department) {
     if (!(this instanceof newRoleInfo)) {
-      return new newRoleInfo(title, salary, department_id);
+      return new newRoleInfo(role_title, role_salary, department_id);
     }
-    this.title = role_name;
-    this.salary = role_salary;
+    this.role_title = role_name;
+    this.role_salary = role_salary;
     this.department_id = role_department;
   }
 }
-
+// NOT FUNCTIONAL
 const addRole = () => {
   inquirer
     .prompt([
@@ -262,14 +290,7 @@ const addRole = () => {
     });
 };
 
-const viewAllRoles = () => {
-    connection.query("SELECT * FROM roles ", (err, res) => {
-        console.table(res);
-        allOptions();
-    })
-}
-
-// not functional 
+// NOT FUNCTIONAL
 const removeRole = () => {
   let rolesArray = [];
 
@@ -297,3 +318,6 @@ const removeRole = () => {
       );
     });
 };
+
+// NOT FUNCTIONAL
+const removeDepartment = () => {}
