@@ -141,10 +141,9 @@ class NewEmployeeInfo {
   }
 }
 
+let rolesArray = [];
 // functional
 const addEmployee = () => {
-  let rolesArray = [];
-
   connection.query("SELECT role_title FROM roles", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       rolesArray.push(res[i].role_title);
@@ -235,8 +234,46 @@ const removeEmployee = () => {
     });
 };
 
-// NOT FUNCTIONAL
-const updateEmployeeRole = () => {};
+// functional
+const updateEmployeeRole = () => {
+  connection.query("SELECT role_title FROM roles", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].role_title);
+    }
+  });
+
+  inquirer
+    .prompt([
+      {
+        name: "enter_employee_id",
+        type: "input",
+        message: "enter employee id to update role:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "new_employee_role",
+        type: "list",
+        message: "select new role:",
+        choices: rolesArray,
+      },
+    ])
+    .then((answer) => {
+      connection.query("UPDATE employees SET role_title = ? WHERE id = ?;", [
+        answer.new_employee_role,
+        answer.enter_employee_id,
+      ], (err, res) => {
+        console.log("employee updated");
+        console.log("*****");
+        viewAllEmployees();
+      }
+      );
+    });
+};
 
 // NOT FUNCTIONAL
 const updateEmployeesManager = () => {};
