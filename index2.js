@@ -123,7 +123,7 @@ const viewAllEmployeesByManager = () => {
 };
 
 // list is static bc there is no option to add new department, consider adding once all requirements are met
-// TODO: create dynamic array to display
+// todo: create dynamic array to display
 const viewAllDepartments = () => {
   connection.query("SELECT * FROM departments;", (err, res) => {
     console.table(res);
@@ -149,6 +149,8 @@ class NewEmployeeInfo {
 }
 
 // functional
+// todo: insert addRole() as final option
+// todo: capitalize first letter, lowercase rest
 const addEmployee = () => {
   let rolesArray = [];
   connection.query("SELECT role_title FROM roles", (err, res) => {
@@ -210,6 +212,7 @@ const addEmployee = () => {
     });
 };
 
+// functional
 class NewDepartmentInfo {
   constructor(new_department_id, new_department_name, new_department_manager) {
     if (!(this instanceof NewDepartmentInfo)) {
@@ -222,6 +225,10 @@ class NewDepartmentInfo {
   }
 }
 
+// functional
+// todo: check department_id against existing id so no duplicates allowed
+// todo: create managerArray for list with addNewManager() as final option
+// todo: capitalize first letter, lowercase rest
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -382,6 +389,7 @@ class newRoleInfo {
 }
 // functional
 // todo: improve role_id = no duplicates
+// todo: capitalize first letter, lowercase rest
 const addRole = () => {
   inquirer
     .prompt([
