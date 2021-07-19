@@ -96,13 +96,20 @@ const viewAllEmployees = () => {
 };
 
 // NOT FUNCTIONAL
-const viewAllEmployeesByDept = () => {}
+const viewAllEmployeesByDept = () => {};
 
 // NOT FUNCTIONAL
-const viewAllEmployeesByManager = () => {}
+const viewAllEmployeesByManager = () => {};
 
-// NOT FUNCTIONAL
-const viewAllDepartments = () => {}
+// list static list of Departments
+// TODO: create dynamic array to display
+const viewAllDepartments = () => {
+  connection.query("SELECT * FROM departments;", (err, res) => {
+    console.table(res);
+    console.log("*****");
+    allOptions();
+  });
+};
 
 // functional
 class NewEmployeeInfo {
@@ -211,18 +218,18 @@ const removeEmployee = () => {
 };
 
 // NOT FUNCTIONAL
-const updateEmployeeRole = () => {}
+const updateEmployeeRole = () => {};
 
 // NOT FUNCTIONAL
-const updateEmployeesManager = () => {}
+const updateEmployeesManager = () => {};
 
 // functional
 const viewAllRoles = () => {
-    connection.query("SELECT * FROM roles ", (err, res) => {
-        console.table(res);
-        allOptions();
-    })
-}
+  connection.query("SELECT * FROM roles ", (err, res) => {
+    console.table(res);
+    allOptions();
+  });
+};
 
 // NOT FUNCTIONAL
 class newRoleInfo {
@@ -320,4 +327,4 @@ const removeRole = () => {
 };
 
 // NOT FUNCTIONAL
-const removeDepartment = () => {}
+const removeDepartment = () => {};
