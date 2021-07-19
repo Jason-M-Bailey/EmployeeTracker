@@ -98,10 +98,19 @@ const viewAllEmployees = () => {
 // NOT FUNCTIONAL
 const viewAllEmployeesByDept = () => {};
 
-// NOT FUNCTIONAL
-const viewAllEmployeesByManager = () => {};
+// FUNCTIONAL
+const viewAllEmployeesByManager = () => {
+  connection.query(
+    "SELECT department_name, manager, first_name, last_name FROM departments LEFT JOIN roles ON departments.department_id = roles.department_id LEFT JOIN employees ON roles.role_title = employees.role_title ORDER BY manager;",
+    (err, res) => {
+      console.table(res);
+      console.log("*****");
+      allOptions();
+    }
+  );
+};
 
-// list static list of Departments
+// list is static
 // TODO: create dynamic array to display
 const viewAllDepartments = () => {
   connection.query("SELECT * FROM departments;", (err, res) => {
