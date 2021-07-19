@@ -323,7 +323,10 @@ const removeEmployee = () => {
 };
 
 // functional
+// todo: create employee list array for dynamic choice
 const updateEmployeeRole = () => {
+  let rolesArray = [];
+
   connection.query("SELECT role_title FROM roles", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       rolesArray.push(res[i].role_title);
@@ -459,7 +462,7 @@ const addRole = () => {
 };
 
 // remove role by entering ID number
-// todo: make remove role functional by selecting from a dynamic list
+// todo: improve remove role by selecting from a dynamic list
 const removeRole = () => {
   connection.query("SELECT * FROM roles ", (err, res) => {
     console.table(res);
@@ -485,5 +488,32 @@ const removeRole = () => {
     });
 };
 
-// NOT FUNCTIONAL
-const removeDepartment = () => {};
+// functional
+// todo: improve remove department by selecting from a dynamic list
+const removeDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "remove_department",
+        type: "input",
+        message: "enter department id to remove:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM departments WHERE department_id = ?",
+        answer.remove_department,
+        (err, res) => {
+          console.log("department removed");
+          viewAllDepartments();
+        }
+      );
+    });
+};
