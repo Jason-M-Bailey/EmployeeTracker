@@ -131,10 +131,14 @@ const viewAllDepartments = () => {
 
 // functional
 class NewEmployeeInfo {
+  // constructor elements are based off inquirer prompts
   constructor(employee_first_name, employee_last_name, employee_role_title) {
     if (!(this instanceof NewEmployeeInfo)) {
+        // based on the mySQL schema
       return new NewEmployeeInfo(first_name, last_name, role_title);
     }
+
+    // this . [mysql spelling] = [inquirer prompt spelling]
     this.first_name = employee_first_name;
     this.last_name = employee_last_name;
     this.role_title = employee_role_title;
@@ -185,6 +189,7 @@ const addEmployee = () => {
     ])
     .then(function (user) {
       var newEmployee = new NewEmployeeInfo(
+        // inquirer prompts
         user.employee_first_name,
         user.employee_last_name,
         user.employee_role_title
@@ -263,14 +268,14 @@ const updateEmployeeRole = () => {
       },
     ])
     .then((answer) => {
-      connection.query("UPDATE employees SET role_title = ? WHERE id = ?;", [
-        answer.new_employee_role,
-        answer.enter_employee_id,
-      ], (err, res) => {
-        console.log("employee updated");
-        console.log("*****");
-        viewAllEmployees();
-      }
+      connection.query(
+        "UPDATE employees SET role_title = ? WHERE id = ?;",
+        [answer.new_employee_role, answer.enter_employee_id],
+        (err, res) => {
+          console.log("employee updated");
+          console.log("*****");
+          viewAllEmployees();
+        }
       );
     });
 };
@@ -288,13 +293,15 @@ const viewAllRoles = () => {
 
 // NOT FUNCTIONAL
 class newRoleInfo {
-  constructor(role_name, role_salary, role_department) {
+    // should be same as inquirer prompt names
+  constructor(newRole_id, newRole_title, newRole_salary, newRole_department) {
     if (!(this instanceof newRoleInfo)) {
-      return new newRoleInfo(role_title, role_salary, department_id);
+      return new newRoleInfo(role_id, role_title, role_salary, department_id);
     }
-    this.role_title = role_name;
-    this.role_salary = role_salary;
-    this.department_id = role_department;
+    this.role_id = newRole_id;
+    this.role_title = newRole_title;
+    this.role_salary = newRole_salary;
+    this.department_id = newRole_department;
   }
 }
 // NOT FUNCTIONAL
@@ -302,9 +309,15 @@ const addRole = () => {
   inquirer
     .prompt([
       {
-        name: "role_name",
+        name: "newRole_id",
         type: "input",
-        message: "what is the name of the role:",
+        message: "give the role a unique id:",
+        // validate: check against current id #s and return error ir already exists
+      },
+      {
+        name: "newRole_title",
+        type: "input",
+        message: "what is the title of the role:",
         validate: (answer) => {
           if (answer !== "") {
             return true;
@@ -313,7 +326,7 @@ const addRole = () => {
         },
       },
       {
-        name: "role_salary",
+        name: "newRole_salary",
         type: "input",
         message: "what is the salary for the role:",
         validate: (answer) => {
@@ -325,7 +338,7 @@ const addRole = () => {
         },
       },
       {
-        name: "role_department",
+        name: "newRole_department",
         type: "input",
         message: "what is the department id:",
         validate: (answer) => {
@@ -339,9 +352,10 @@ const addRole = () => {
     ])
     .then(function (user) {
       var newRole = new newRoleInfo(
-        user.role_name,
-        user.role_salary,
-        user.role_department
+        user.newRole_id,
+        user.newRole_title,
+        user.newRole_salary,
+        user.newRole_department
       );
       connection.query("INSERT INTO roles SET ?", newRole, function (err, res) {
         if (err) throw err;
