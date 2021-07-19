@@ -40,6 +40,7 @@ const allOptions = () => {
           "View All Employees By Manager",
           "View All Departments",
           "View All Roles",
+          "Add Department",
           "Add an Employee",
           "Add Role",
           "Remove Department",
@@ -61,6 +62,8 @@ const allOptions = () => {
         viewAllEmployeesByManager();
       } else if (answer.select_option === "View All Departments") {
         viewAllDepartments();
+      } else if (answer.select_option === "Add Department") {
+        addDepartment();
       } else if (answer.select_option === "Add an Employee") {
         addEmployee();
       } else if (answer.select_option === "Remove an Employee") {
@@ -202,6 +205,79 @@ const addEmployee = () => {
           console.log("new employee added to database");
           console.log("*****");
           viewAllEmployees();
+        }
+      );
+    });
+};
+
+class NewDepartmentInfo {
+  constructor(new_department_id, new_department_name, new_department_manager) {
+    if (!(this instanceof NewDepartmentInfo)) {
+      return new NewDepartmentInfo(department_id, department_name, manager);
+    }
+
+    this.department_id = new_department_id;
+    this.department_name = new_department_name;
+    this.manager = new_department_manager;
+  }
+}
+
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "new_department_id",
+        type: "input",
+        message: "give the new department a unique id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+
+      {
+        name: "new_department_name",
+        type: "input",
+        message: "what is the name of the new department:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+
+      {
+        name: "new_department_manager",
+        type: "input",
+        message: "who is the manager for this new department:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+    ])
+
+    .then(function (user) {
+      var newDepartment = new NewDepartmentInfo(
+        user.new_department_id,
+        user.new_department_name,
+        user.new_department_manager
+      );
+
+      connection.query(
+        "INSERT INTO departments SET ?",
+        newDepartment,
+        function (err, res) {
+          if (err) throw err;
+          console.log("new department added to database");
+          console.log("");
+          allOptions();
         }
       );
     });
