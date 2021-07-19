@@ -134,7 +134,7 @@ class NewEmployeeInfo {
   // constructor elements are based off inquirer prompts
   constructor(employee_first_name, employee_last_name, employee_role_title) {
     if (!(this instanceof NewEmployeeInfo)) {
-        // based on the mySQL schema
+      // based on the mySQL schema
       return new NewEmployeeInfo(first_name, last_name, role_title);
     }
 
@@ -145,9 +145,9 @@ class NewEmployeeInfo {
   }
 }
 
-let rolesArray = [];
 // functional
 const addEmployee = () => {
+  let rolesArray = [];
   connection.query("SELECT role_title FROM roles", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       rolesArray.push(res[i].role_title);
@@ -293,7 +293,7 @@ const viewAllRoles = () => {
 
 // NOT FUNCTIONAL
 class newRoleInfo {
-    // should be same as inquirer prompt names
+  // should be same as inquirer prompt names
   constructor(newRole_id, newRole_title, newRole_salary, newRole_department) {
     if (!(this instanceof newRoleInfo)) {
       return new newRoleInfo(role_id, role_title, role_salary, department_id);
@@ -366,30 +366,28 @@ const addRole = () => {
     });
 };
 
-// NOT FUNCTIONAL
+// remove role by entering ID number
+// TODO: make remove role functional by selecting from a dynamic list
 const removeRole = () => {
-  let rolesArray = [];
-
-  connection.query("SELECT role_title FROM roles", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      rolesArray.push(res[i].role_title);
-    }
+  connection.query("SELECT * FROM roles ", (err, res) => {
+    console.table(res);
   });
+
   inquirer
     .prompt([
       {
-        name: "employee_role_title",
-        type: "list",
-        message: "select the role to remove:",
-        choices: rolesArray,
+        name: "employee_role_id",
+        type: "input",
+        message: "enter role id to remove:",
       },
     ])
     .then((answer) => {
       connection.query(
-        "DELETE FROM roles WHERE role_title = ?",
-        answer.employee_role_title,
+        "DELETE FROM roles WHERE role_id = ?",
+        answer.employee_role_id,
         (err, res) => {
-          viewAllEmployees();
+            console.log("role removed")
+            viewAllRoles();
         }
       );
     });
