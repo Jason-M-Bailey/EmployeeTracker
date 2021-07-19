@@ -95,10 +95,19 @@ const viewAllEmployees = () => {
   );
 };
 
-// NOT FUNCTIONAL
-const viewAllEmployeesByDept = () => {};
+// functional
+const viewAllEmployeesByDept = () => {
+  connection.query(
+    "SELECT department_name, first_name, last_name FROM departments LEFT JOIN roles ON departments.department_id = roles.department_id LEFT JOIN employees ON roles.role_title = employees.role_title ORDER BY department_name;",
+    (err, res) => {
+      console.table(res);
+      console.log("*****");
+      allOptions();
+    }
+  );
+};
 
-// FUNCTIONAL
+// functional
 const viewAllEmployeesByManager = () => {
   connection.query(
     "SELECT department_name, manager, first_name, last_name FROM departments LEFT JOIN roles ON departments.department_id = roles.department_id LEFT JOIN employees ON roles.role_title = employees.role_title ORDER BY manager;",
@@ -110,7 +119,7 @@ const viewAllEmployeesByManager = () => {
   );
 };
 
-// list is static
+// list is static bc there is no option to add new department, consider adding once all requirements are met
 // TODO: create dynamic array to display
 const viewAllDepartments = () => {
   connection.query("SELECT * FROM departments;", (err, res) => {
