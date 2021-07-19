@@ -41,11 +41,11 @@ const allOptions = () => {
           "View All Departments",
           "View All Roles",
           "Add Department",
-          "Add an Employee",
+          "Add Employee",
           "Add Role",
           "Remove Department",
+          "Remove Employee",
           "Remove Role",
-          "Remove an Employee",
           "Update Employee Role",
           "Update Employee's Manager",
           "Exit",
@@ -64,9 +64,9 @@ const allOptions = () => {
         viewAllDepartments();
       } else if (answer.select_option === "Add Department") {
         addDepartment();
-      } else if (answer.select_option === "Add an Employee") {
+      } else if (answer.select_option === "Add Employee") {
         addEmployee();
-      } else if (answer.select_option === "Remove an Employee") {
+      } else if (answer.select_option === "Remove Employee") {
         removeEmployee();
       } else if (answer.select_option === "Update Employee Role") {
         updateEmployeeRole();
@@ -125,11 +125,97 @@ const viewAllEmployeesByManager = () => {
 // list is static bc there is no option to add new department, consider adding once all requirements are met
 // todo: create dynamic array to display
 const viewAllDepartments = () => {
-  connection.query("SELECT * FROM departments;", (err, res) => {
+  connection.query("SELECT * FROM departments ORDER BY department_id;", (err, res) => {
     console.table(res);
     console.log("*****");
     allOptions();
   });
+};
+
+// functional
+const viewAllRoles = () => {
+  connection.query("SELECT * FROM roles ORDER BY role_id", (err, res) => {
+    console.table(res);
+    allOptions();
+  });
+};
+
+// functional
+class NewDepartmentInfo {
+  constructor(new_department_id, new_department_name, new_department_manager) {
+    if (!(this instanceof NewDepartmentInfo)) {
+      return new NewDepartmentInfo(department_id, department_name, manager);
+    }
+
+    this.department_id = new_department_id;
+    this.department_name = new_department_name;
+    this.manager = new_department_manager;
+  }
+}
+
+// functional
+// todo: check department_id against existing id so no duplicates allowed
+// todo: create managerArray for list with addNewManager() as final option
+// todo: capitalize first letter, lowercase rest
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "new_department_id",
+        type: "input",
+        message: "give the new department a unique id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+
+      {
+        name: "new_department_name",
+        type: "input",
+        message: "what is the name of the new department:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+
+      {
+        name: "new_department_manager",
+        type: "input",
+        message: "who is the manager for this new department:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+    ])
+
+    .then(function (user) {
+      var newDepartment = new NewDepartmentInfo(
+        user.new_department_id,
+        user.new_department_name,
+        user.new_department_manager
+      );
+
+      connection.query(
+        "INSERT INTO departments SET ?",
+        newDepartment,
+        function (err, res) {
+          if (err) throw err;
+          console.log("new department added to database");
+          console.log("");
+          allOptions();
+        }
+      );
+    });
 };
 
 // functional
@@ -213,171 +299,6 @@ const addEmployee = () => {
 };
 
 // functional
-class NewDepartmentInfo {
-  constructor(new_department_id, new_department_name, new_department_manager) {
-    if (!(this instanceof NewDepartmentInfo)) {
-      return new NewDepartmentInfo(department_id, department_name, manager);
-    }
-
-    this.department_id = new_department_id;
-    this.department_name = new_department_name;
-    this.manager = new_department_manager;
-  }
-}
-
-// functional
-// todo: check department_id against existing id so no duplicates allowed
-// todo: create managerArray for list with addNewManager() as final option
-// todo: capitalize first letter, lowercase rest
-const addDepartment = () => {
-  inquirer
-    .prompt([
-      {
-        name: "new_department_id",
-        type: "input",
-        message: "give the new department a unique id:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "department id must be a number greater than zero";
-        },
-      },
-
-      {
-        name: "new_department_name",
-        type: "input",
-        message: "what is the name of the new department:",
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-
-      {
-        name: "new_department_manager",
-        type: "input",
-        message: "who is the manager for this new department:",
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-    ])
-
-    .then(function (user) {
-      var newDepartment = new NewDepartmentInfo(
-        user.new_department_id,
-        user.new_department_name,
-        user.new_department_manager
-      );
-
-      connection.query(
-        "INSERT INTO departments SET ?",
-        newDepartment,
-        function (err, res) {
-          if (err) throw err;
-          console.log("new department added to database");
-          console.log("");
-          allOptions();
-        }
-      );
-    });
-};
-
-// functional - removed employee by id instead of list
-const removeEmployee = () => {
-  console.log("remove employee option chosen");
-  inquirer
-    .prompt([
-      {
-        name: "select_employee",
-        type: "input",
-        message: "enter employee id to remove:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "id must be a number greater than zero";
-        },
-      },
-    ])
-
-    .then((answer) => {
-      connection.query(
-        "DELETE FROM employees WHERE id = ?",
-        answer.select_employee,
-        (err, res) => {
-          console.log("employee removed");
-          console.log("*****");
-          viewAllEmployees();
-        }
-      );
-    });
-};
-
-// functional
-// todo: create employee list array for dynamic choice
-const updateEmployeeRole = () => {
-  let rolesArray = [];
-
-  connection.query("SELECT role_title FROM roles", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      rolesArray.push(res[i].role_title);
-    }
-  });
-
-  inquirer
-    .prompt([
-      {
-        name: "enter_employee_id",
-        type: "input",
-        message: "enter employee id to update role:",
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-      {
-        name: "new_employee_role",
-        type: "list",
-        message: "select new role:",
-        choices: rolesArray,
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "UPDATE employees SET role_title = ? WHERE id = ?;",
-        [answer.new_employee_role, answer.enter_employee_id],
-        (err, res) => {
-          console.log("employee updated");
-          console.log("*****");
-          viewAllEmployees();
-        }
-      );
-    });
-};
-
-// NOT FUNCTIONAL
-const updateEmployeesManager = () => {};
-
-// functional
-const viewAllRoles = () => {
-  connection.query("SELECT * FROM roles ORDER BY role_id", (err, res) => {
-    console.table(res);
-    allOptions();
-  });
-};
-
-// functional
 class newRoleInfo {
   // should be same as inquirer prompt names
   constructor(newRole_id, newRole_title, newRole_salary, newRole_department) {
@@ -390,6 +311,7 @@ class newRoleInfo {
     this.department_id = newRole_department;
   }
 }
+
 // functional
 // todo: improve role_id = no duplicates
 // todo: capitalize first letter, lowercase rest
@@ -461,33 +383,6 @@ const addRole = () => {
     });
 };
 
-// remove role by entering ID number
-// todo: improve remove role by selecting from a dynamic list
-const removeRole = () => {
-  connection.query("SELECT * FROM roles ", (err, res) => {
-    console.table(res);
-  });
-
-  inquirer
-    .prompt([
-      {
-        name: "employee_role_id",
-        type: "input",
-        message: "enter role id to remove:",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "DELETE FROM roles WHERE role_id = ?",
-        answer.employee_role_id,
-        (err, res) => {
-          console.log("role removed");
-          viewAllRoles();
-        }
-      );
-    });
-};
-
 // functional
 // todo: improve remove department by selecting from a dynamic list
 const removeDepartment = () => {
@@ -517,3 +412,109 @@ const removeDepartment = () => {
       );
     });
 };
+
+// functional - removed employee by id instead of list
+const removeEmployee = () => {
+  console.log("remove employee option chosen");
+  inquirer
+    .prompt([
+      {
+        name: "select_employee",
+        type: "input",
+        message: "enter employee id to remove:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "id must be a number greater than zero";
+        },
+      },
+    ])
+
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM employees WHERE id = ?",
+        answer.select_employee,
+        (err, res) => {
+          console.log("employee removed");
+          console.log("*****");
+          viewAllEmployees();
+        }
+      );
+    });
+};
+
+// remove role by entering ID number
+// todo: improve remove role by selecting from a dynamic list
+const removeRole = () => {
+  connection.query("SELECT * FROM roles ", (err, res) => {
+    console.table(res);
+  });
+
+  inquirer
+    .prompt([
+      {
+        name: "employee_role_id",
+        type: "input",
+        message: "enter role id to remove:",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM roles WHERE role_id = ?",
+        answer.employee_role_id,
+        (err, res) => {
+          console.log("role removed");
+          viewAllRoles();
+        }
+      );
+    });
+};
+
+// functional
+// todo: create employee list array for dynamic choice
+const updateEmployeeRole = () => {
+  let rolesArray = [];
+
+  connection.query("SELECT role_title FROM roles", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].role_title);
+    }
+  });
+
+  inquirer
+    .prompt([
+      {
+        name: "enter_employee_id",
+        type: "input",
+        message: "enter employee id to update role:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "new_employee_role",
+        type: "list",
+        message: "select new role:",
+        choices: rolesArray,
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "UPDATE employees SET role_title = ? WHERE id = ?;",
+        [answer.new_employee_role, answer.enter_employee_id],
+        (err, res) => {
+          console.log("employee updated");
+          console.log("*****");
+          viewAllEmployees();
+        }
+      );
+    });
+};
+
+// NOT FUNCTIONAL
+const updateEmployeesManager = () => {};
