@@ -39,14 +39,14 @@ const allOptions = () => {
           "View All Employees By Department",
           "View All Employees By Manager",
           "View All Departments",
+          "View All Roles",
           "Add an Employee",
+          "Add Role",
+          "Remove Department",
+          "Remove Role",
           "Remove an Employee",
           "Update Employee Role",
           "Update Employee's Manager",
-          "View All Roles",
-          "Add Role",
-          "Remove Role",
-          "Remove Department",
           "Exit",
         ],
       },
@@ -110,7 +110,7 @@ const viewAllEmployeesByDept = () => {
 // functional
 const viewAllEmployeesByManager = () => {
   connection.query(
-    "SELECT department_name, manager, first_name, last_name FROM departments LEFT JOIN roles ON departments.department_id = roles.department_id LEFT JOIN employees ON roles.role_title = employees.role_title ORDER BY manager;",
+    "SELECT manager, first_name, last_name FROM departments LEFT JOIN roles ON departments.department_id = roles.department_id LEFT JOIN employees ON roles.role_title = employees.role_title ORDER BY manager;",
     (err, res) => {
       console.table(res);
       console.log("*****");
@@ -285,13 +285,13 @@ const updateEmployeesManager = () => {};
 
 // functional
 const viewAllRoles = () => {
-  connection.query("SELECT * FROM roles ", (err, res) => {
+  connection.query("SELECT * FROM roles ORDER BY role_id", (err, res) => {
     console.table(res);
     allOptions();
   });
 };
 
-// NOT FUNCTIONAL
+// functional
 class newRoleInfo {
   // should be same as inquirer prompt names
   constructor(newRole_id, newRole_title, newRole_salary, newRole_department) {
@@ -304,7 +304,8 @@ class newRoleInfo {
     this.department_id = newRole_department;
   }
 }
-// NOT FUNCTIONAL
+// functional
+// todo: improve role_id = no duplicates
 const addRole = () => {
   inquirer
     .prompt([
@@ -313,6 +314,13 @@ const addRole = () => {
         type: "input",
         message: "give the role a unique id:",
         // validate: check against current id #s and return error ir already exists
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
       },
       {
         name: "newRole_title",
@@ -361,13 +369,13 @@ const addRole = () => {
         if (err) throw err;
         console.log("new role added");
         console.log("*****");
-        viewAllEmployees();
+        allOptions();
       });
     });
 };
 
 // remove role by entering ID number
-// TODO: make remove role functional by selecting from a dynamic list
+// todo: make remove role functional by selecting from a dynamic list
 const removeRole = () => {
   connection.query("SELECT * FROM roles ", (err, res) => {
     console.table(res);
@@ -386,8 +394,8 @@ const removeRole = () => {
         "DELETE FROM roles WHERE role_id = ?",
         answer.employee_role_id,
         (err, res) => {
-            console.log("role removed")
-            viewAllRoles();
+          console.log("role removed");
+          viewAllRoles();
         }
       );
     });
