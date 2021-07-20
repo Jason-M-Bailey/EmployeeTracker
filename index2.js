@@ -2,6 +2,8 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
+let rolesArray = [];
+
 // create the connection information for the sql database
 const connection = mysql.createConnection({
   host: "localhost",
@@ -125,11 +127,14 @@ const viewAllEmployeesByManager = () => {
 // list is static bc there is no option to add new department, consider adding once all requirements are met
 // todo: create dynamic array to display
 const viewAllDepartments = () => {
-  connection.query("SELECT * FROM departments ORDER BY department_id;", (err, res) => {
-    console.table(res);
-    console.log("*****");
-    allOptions();
-  });
+  connection.query(
+    "SELECT * FROM departments ORDER BY department_id;",
+    (err, res) => {
+      console.table(res);
+      console.log("*****");
+      allOptions();
+    }
+  );
 };
 
 // functional
@@ -238,7 +243,7 @@ class NewEmployeeInfo {
 // todo: insert addRole() as final option
 // todo: capitalize first letter, lowercase rest
 const addEmployee = () => {
-  let rolesArray = [];
+  //   let rolesArray = [];
   connection.query("SELECT role_title FROM roles", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       rolesArray.push(res[i].role_title);
@@ -384,7 +389,7 @@ const addRole = () => {
 };
 
 // functional
-// todo: improve remove department by selecting from a dynamic list
+// todo: improve removeDepartment by selecting from a dynamic list
 const removeDepartment = () => {
   inquirer
     .prompt([
@@ -413,7 +418,7 @@ const removeDepartment = () => {
     });
 };
 
-// functional - removed employee by id instead of list
+// functional - remove employee by id instead of list
 const removeEmployee = () => {
   console.log("remove employee option chosen");
   inquirer
@@ -445,7 +450,7 @@ const removeEmployee = () => {
     });
 };
 
-// remove role by entering ID number
+// functional - remove role by entering ID number
 // todo: improve remove role by selecting from a dynamic list
 const removeRole = () => {
   connection.query("SELECT * FROM roles ", (err, res) => {

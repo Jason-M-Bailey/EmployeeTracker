@@ -23,7 +23,6 @@ CREATE TABLE departments (
     manager VARCHAR(100) NOT NULL
 );
 
-
 INSERT INTO employees (first_name, last_name, role_title)
 VALUES ("Amy", "Adams", "Engineer"), ("Brian", "Brown", "Junior Developer"), ("Chris", "Corningsworth", "Engineer"), ("Dede", "Dennis", "CSS Maestro"), ("Eric", "Evans", "Junior Developer"), ("Faith", "Field", "Lawyer"), ("George", "Gostanza", "Paralegal"), ("Henry", "Hill", "Sales Rep"), ("Ignacius", "Ignacio", "Sales Associate");
 
