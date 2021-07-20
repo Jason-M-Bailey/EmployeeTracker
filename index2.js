@@ -228,7 +228,8 @@ class NewEmployeeInfo {
   // constructor elements are based off inquirer prompts
   constructor(employee_first_name, employee_last_name, employee_role_title) {
     if (!(this instanceof NewEmployeeInfo)) {
-      // based on the mySQL schema
+      
+        // based on the mySQL schema
       return new NewEmployeeInfo(first_name, last_name, role_title);
     }
 
