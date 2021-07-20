@@ -228,8 +228,7 @@ class NewEmployeeInfo {
   // constructor elements are based off inquirer prompts
   constructor(employee_first_name, employee_last_name, employee_role_title) {
     if (!(this instanceof NewEmployeeInfo)) {
-      
-        // based on the mySQL schema
+      // based on the mySQL schema
       return new NewEmployeeInfo(first_name, last_name, role_title);
     }
 
@@ -287,6 +286,7 @@ const addEmployee = () => {
     .then(function (user) {
       var newEmployee = new NewEmployeeInfo(
         // inquirer prompts
+
         user.employee_first_name,
         user.employee_last_name,
         user.employee_role_title

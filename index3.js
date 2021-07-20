@@ -25,6 +25,7 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
+
   viewRawData();
 });
 
@@ -177,9 +178,16 @@ const viewRoles = () => {
   );
 };
 
+// NOT FUNCTIONAL
 const viewTotalBudgetByDepartment = () => {
-  console.log("made it to view total budget by department");
-  allOptions();
+  connection.query("SELECT name FROM department", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      departmentsArray.push(res[i].name);
+      console.log(res[i].name);
+    }
+  });
+
+  // allOptions();
 };
 
 // functional
@@ -341,9 +349,38 @@ const addRole = () => {
   allOptions();
 };
 
+// SOMEWHAT FUNCTIONAL BUT CLASS IS STARTING
+// todo: 
 const removeDepartment = () => {
-  console.log("made it to remove department");
-  allOptions();
+  let departmentsArrayTwo = [];
+
+  connection.query("SELECT name FROM department", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      departmentsArrayTwo.push(res[i].name);
+    }
+    console.log(departmentsArrayTwo);
+    removeDeptFunction(departmentsArrayTwo);
+  });
+};
+
+const removeDeptFunction = (departmentsArrayTwo) => {
+  inquirer
+    .prompt([
+      {
+        name: "remove_department",
+        type: "list",
+        message: "which department do you want to remove: ",
+        choices: departmentsArrayTwo,
+      },
+    ])
+    .then((answer) => {
+      connection.query("DELETE FROM department WHERE name = ?"),
+        answer.remove_department,
+        (err, res) => {
+          if (err) throw err;
+          allOptions();
+        };
+    });
 };
 
 const removeEmployee = () => {
