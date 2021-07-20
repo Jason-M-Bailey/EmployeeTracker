@@ -148,9 +148,8 @@ const viewEmployeesByManager = () => {
 
 // functional
 const viewDepartments = () => {
-  connection.query("SELECT * FROM department ORDER BY id;", (err, res) => {
+  connection.query("SELECT name AS Name FROM department ORDER BY id;", (err, res) => {
     console.table(res);
-    console.log("*****");
     allOptions();
   });
 };
