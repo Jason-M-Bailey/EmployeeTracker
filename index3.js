@@ -2,9 +2,9 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
-// let rolesArray = [];
-// let employeesArray = [];
-// let departmentsArray = [];
+let rolesArray = [];
+let employeesArray = [];
+let departmentsArray = [];
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -25,7 +25,7 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
-  viewEmployees();
+  viewRawData();
 });
 
 const allOptions = () => {
@@ -95,10 +95,20 @@ const allOptions = () => {
     });
 };
 
+const viewRawData = () => {
+  connection.query(
+    "SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id; ",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
 // functional
 const viewEmployees = () => {
   connection.query(
-    "SELECT CONCAT(first_name, ' ', last_name) AS Name, title AS Title, salary AS Salary, name AS Department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
+    "SELECT CONCAT(first_name, ' ', last_name) AS Name, title AS Title, salary AS Salary, name AS Department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id",
     (err, res) => {
       console.table(res);
       allOptions();
@@ -140,7 +150,6 @@ const viewEmployeesByDept = () => {
   //   allOptions();
 };
 
-
 const viewEmployeesByManager = () => {
   console.log("made it to employees by manager");
   allOptions();
@@ -148,18 +157,24 @@ const viewEmployeesByManager = () => {
 
 // functional
 const viewDepartments = () => {
-  connection.query("SELECT name AS Name FROM department ORDER BY id;", (err, res) => {
-    console.table(res);
-    allOptions();
-  });
+  connection.query(
+    "SELECT name AS Name FROM department ORDER BY id;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
 };
 
-// functional 
+// functional
 const viewRoles = () => {
-  connection.query("SELECT title AS Title, salary AS Salary FROM role;", (err, res) => {
-    console.table(res);
-    allOptions();
-  });
+  connection.query(
+    "SELECT title AS Title, salary AS Salary FROM role;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
 };
 
 const viewTotalBudgetByDepartment = () => {
@@ -233,9 +248,92 @@ const addDepartment = () => {
   //   allOptions();
 };
 
+class NewEmployeeInfo {
+  // inquirer prompts
+  constructor(employee_first_name, employee_last_name) {
+    if (!(this instanceof NewEmployeeInfo)) {
+      return new NewEmployeeInfo(first_name, last_name);
+    }
+
+    this.first_name = employee_first_name;
+    this.last_name = employee_last_name;
+  }
+}
+
+// NOT FUNCTIONAL
+// todo: how to connect role_id from employee table to title in role table
 const addEmployee = () => {
-  console.log("made it to add employee");
-  allOptions();
+  connection.query("SELECT title FROM role", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].title);
+      //   console.log(rolesArray[i]);
+    }
+  });
+
+  connection.query(
+    "SELECT CONCAT(first_name, ' ', last_name) AS Name FROM employee;",
+    (err, res) => {
+      for (let i = 0; i < res.length; i++) {
+        employeesArray.push(res[i].Name);
+        //   console.log(employeesArray[i]);
+      }
+    }
+  );
+
+  inquirer
+    .prompt([
+      {
+        name: "employee_first_name",
+        type: "input",
+        message: "what is the employee's first name: ",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "employee_last_name",
+        type: "input",
+        message: "what is the employee's last name: ",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "employee_role_title",
+        type: "list",
+        message: "select the employee's role: ",
+        choices: rolesArray,
+      },
+      {
+        name: "employees_manager",
+        type: "list",
+        message: "who is the employee's manager: ",
+        choices: employeesArray,
+      },
+    ])
+
+    .then(function (user) {
+      var newEmployee = new NewEmployeeInfo(
+        user.employee_first_name,
+        user.employee_last_name
+      );
+      connection.query(
+        "INSERT INTO employee SET ?",
+        newEmployee,
+        function (err, res) {
+          if (err) throw err;
+          viewEmployees();
+        }
+      );
+    });
+
+  //   allOptions();
 };
 
 const addRole = () => {
@@ -268,4 +366,4 @@ const updateEmployeesManager = () => {
   allOptions();
 };
 
-const updateRole = () => {}
+const updateRole = () => {};
