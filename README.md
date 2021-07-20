@@ -68,17 +68,17 @@ How do you deliver this? Here are some guidelines:
 
 * The command-line application should allow users to:
 
-  * Add departments ✔️
+  * Add departments ❓
 
-  * Add roles ✔️
+  * Add roles ❓
   
-  * Add employees ✔️
+  * Add employees ❓
 
-  * View departments ✔️
+  * View departments ❓
   
-  * View roles ✔️
+  * View roles ❓
   
-  * View employees ✔️
+  * View employees ❓
 
   * Update employee roles ❓
 
@@ -86,17 +86,17 @@ How do you deliver this? Here are some guidelines:
 
 * The command-line application should allow users to:
 
-  * Update employee managers ❌
+  * Update employee managers ❓
 
-  * View employees by manager ✔️
+  * View employees by manager ❓
 
-  * Delete departments ❌
+  * Delete departments ❓
   
-  * Delete roles ❓ - allows roles to have duplicate ids - when removing will remove all roles with that ID
+  * Delete roles ❓ 
   
-  * Delete employees ✔️ + todo
+  * Delete employees ❓ 
 
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department ❌
+  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department ❓
 
 
 

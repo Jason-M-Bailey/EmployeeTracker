@@ -140,6 +140,7 @@ const viewEmployeesByDept = () => {
   //   allOptions();
 };
 
+
 const viewEmployeesByManager = () => {
   console.log("made it to employees by manager");
   allOptions();
@@ -154,8 +155,9 @@ const viewDepartments = () => {
   });
 };
 
+// functional 
 const viewRoles = () => {
-  connection.query("SELECT title, salary FROM role;", (err, res) => {
+  connection.query("SELECT title AS Title, salary AS Salary FROM role;", (err, res) => {
     console.table(res);
     allOptions();
   });
