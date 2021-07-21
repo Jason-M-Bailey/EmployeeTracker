@@ -47,7 +47,7 @@ const allOptions = () => {
           "Remove Employee",
           "Remove Role",
 
-          "Update Employee",
+          "Update Employee Role",
           "Update Employee's Manager",
           "Exit",
         ],
@@ -79,7 +79,7 @@ const allOptions = () => {
         removeEmployee();
       } else if (answer.select_option === "Remove Role") {
         removeRole();
-      } else if (answer.select_option === "Update Employee") {
+      } else if (answer.select_option === "Update Employee Role") {
         updateEmployeeRole();
       } else if (answer.select_option === "Update Employee's Manager") {
         updateEmployeesManager();
@@ -452,8 +452,9 @@ const removeRole = () => {
     });
 };
 
-// BASIC
-// NOT FUNCTIONAL
+// functional
+// todo: improvement functionality by selecting employee from dynamic list
+// todo: improvement functionality by selecting new role from dynamic list
 const updateEmployeeRole = () => {
   inquirer
     .prompt([
@@ -471,7 +472,7 @@ const updateEmployeeRole = () => {
     .then((answer) => {
       connection.query(
         "UPDATE employee SET role_id = ? WHERE id = ?;",
-        [answer.employee_id, answer.employee_new_role_id],
+        [answer.employee_new_role_id, answer.employee_id],
         (err, res) => {
           console.log("employee updated");
           viewEmployees();
