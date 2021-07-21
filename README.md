@@ -76,11 +76,11 @@ How do you deliver this? Here are some guidelines:
 
   * Add departments ✔️
 
-  * Add employees ❓
+  * Add employees ✔️
   
-  * Add roles ❓
+  * Add roles ✔️
 
-  * Update employee roles ❓
+  * Update employee roles ✔️
 
 ## Bonus
 

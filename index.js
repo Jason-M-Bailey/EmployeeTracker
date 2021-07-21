@@ -90,8 +90,10 @@ const allOptions = () => {
 };
 
 // functional
+// todo: add Manager column with CONCAT(first_name,  ' ', last_name) AS Manager
+// todo: how to add comma in the salary field
 const viewEmployees = () => {
-  connection.query("SELECT * FROM employee", (err, res) => {
+  connection.query("SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;", (err, res) => {
     console.table(res);
     console.log("*****");
     allOptions();
@@ -453,8 +455,8 @@ const removeRole = () => {
 };
 
 // functional
-// todo: improvement functionality by selecting employee from dynamic list
-// todo: improvement functionality by selecting new role from dynamic list
+// todo: improve functionality by selecting employee from dynamic list
+// todo: improve functionality by selecting new role from dynamic list
 const updateEmployeeRole = () => {
   inquirer
     .prompt([
@@ -481,9 +483,32 @@ const updateEmployeeRole = () => {
     });
 };
 
-// BONUS
-// NOT FUNCTIONAL
+// functional
+// todo: improve functionality by selecting employee from dynamic list
+// todo: improve functionality by selecting new manager from dynamic list
 const updateEmployeesManager = () => {
-  // step 1: what employee do you want to update?
-  // step 2: set new manager for selected employee
+  inquirer
+    .prompt([
+      {
+        name: "employee_id",
+        type: "input",
+        message: "what is the employee's id: ",
+      },
+      {
+        name: "employee_new_manager_id",
+        type: "input",
+        message: "what is the employee's new manager id: ",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "UPDATE employee SET manager_id = ? WHERE id = ?;",
+        [answer.employee_new_manager_id, answer.employee_id],
+        (err, res) => {
+          console.log("employee updated");
+          viewEmployees();
+        }
+      );
+    });
+
 };
