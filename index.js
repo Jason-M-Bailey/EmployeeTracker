@@ -24,28 +24,12 @@ connection.connect((err) => {
   viewEmployees();
 });
 
-let rolesArray = [];
 let departmentsArray = [];
 let employeesArray = [];
+let rolesArray = [];
 
 // experiment with dynamic arrays
-// todo: able to view dynamic array of roles but unsure how to connect the user's answer of role title to role_id on employee table
-const dynamicRolesArray = () => {
-  connection.query("SELECT title FROM role;", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      rolesArray.push(res[i].title);
-      console.log("for loop running...");
-      console.log(res[i].title);
-    }
-    console.log("*****");
-    console.log("for loop finished");
-    console.log(rolesArray);
-    console.log("*****");
-  });
-
-  allOptions();
-};
-
+// todo: able to view dynamic array of roles but unsure how to connect the user's answer to insert into db
 const dynamicDepartmentsArray = () => {
   connection.query("SELECT name FROM department;", (err, res) => {
     for (let i = 0; i < res.length; i++) {
@@ -81,6 +65,23 @@ const dynamicEmployeesArray = () => {
   allOptions();
 };
 
+const dynamicRolesArray = () => {
+  connection.query("SELECT title FROM role;", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].title);
+      console.log("for loop running...");
+      console.log(res[i].title);
+    }
+    console.log("*****");
+    console.log("for loop finished");
+    console.log(rolesArray);
+    console.log("*****");
+  });
+
+  allOptions();
+};
+
+// functional
 const allOptions = () => {
   inquirer
     .prompt([
