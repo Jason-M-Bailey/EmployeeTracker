@@ -290,9 +290,93 @@ const addEmployee = () => {
     });
 };
 
-// BASIC
-// NOT FUNCTIONAL
-const addRole = () => {};
+class NewRoleInfo {
+  // inquirer prompt spelling
+  constructor(newRole_id, newRole_title, newRole_salary, newRole_department_id) {
+    if (!(this instanceof NewRoleInfo)) {
+      // mysql schema spelling
+      return new newRoleInfo(id, title, salary, department_id);
+    }
+    // this . [mysql spelling] = [inquirer prompt spelling]
+    this.id = newRole_id;
+    this.title = newRole_title;
+    this.salary = newRole_salary;
+    this.department_id = newRole_department_id;
+  }
+}
+
+// functional
+// todo: capitalize first letter of title
+// todo: validate role id is not a duplicate
+// todo: dynamic list for department choice rather than input id
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "newRole_id",
+        type: "input",
+        message: "what is the id for the role:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "ids must be a number greater than zero";
+        },
+      },
+      
+      {
+        name: "newRole_title",
+        type: "input",
+        message: "what is the title of the role:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "newRole_salary",
+        type: "input",
+        message: "what is the salary for the role:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "salaries must be a number greater than zero";
+        },
+      },
+      {
+        name: "newRole_department_id",
+        type: "input",
+        message: "what is the department id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+    ])
+    .then(function (user) {
+      var newRole = new NewRoleInfo(
+        // inquirer prompt names
+        user.newRole_id,
+        user.newRole_title,
+        user.newRole_salary,
+        user.newRole_department_id
+      );
+      connection.query("INSERT INTO role SET ?", newRole, function (err, res) {
+        if (err) throw err;
+        console.log("new role added");
+        console.log("*****");
+        viewRoles();
+      });
+    });
+};
 
 // functional - remove by id
 // todo: improve functionality by removing from dynamic list

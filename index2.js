@@ -308,11 +308,13 @@ const addEmployee = () => {
 
 // functional
 class newRoleInfo {
-  // should be same as inquirer prompt names
+  // inquirer prompt spelling
   constructor(newRole_id, newRole_title, newRole_salary, newRole_department) {
     if (!(this instanceof newRoleInfo)) {
+      // mysql schema spelling
       return new newRoleInfo(role_id, role_title, role_salary, department_id);
     }
+    // this . [mysql spelling] = [inquirer prompt spelling]
     this.role_id = newRole_id;
     this.role_title = newRole_title;
     this.role_salary = newRole_salary;
