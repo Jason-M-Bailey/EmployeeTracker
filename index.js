@@ -292,7 +292,12 @@ const addEmployee = () => {
 
 class NewRoleInfo {
   // inquirer prompt spelling
-  constructor(newRole_id, newRole_title, newRole_salary, newRole_department_id) {
+  constructor(
+    newRole_id,
+    newRole_title,
+    newRole_salary,
+    newRole_department_id
+  ) {
     if (!(this instanceof NewRoleInfo)) {
       // mysql schema spelling
       return new newRoleInfo(id, title, salary, department_id);
@@ -324,7 +329,7 @@ const addRole = () => {
           return "ids must be a number greater than zero";
         },
       },
-      
+
       {
         name: "newRole_title",
         type: "input",
@@ -450,8 +455,29 @@ const removeRole = () => {
 // BASIC
 // NOT FUNCTIONAL
 const updateEmployeeRole = () => {
-  // step 1: what employee do you want to update:
-  // step 2: select new role
+  inquirer
+    .prompt([
+      {
+        name: "employee_id",
+        type: "input",
+        message: "what is the employee's id: ",
+      },
+      {
+        name: "employee_new_role_id",
+        type: "input",
+        message: "what is the employee's new role id: ",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "UPDATE employee SET role_id = ? WHERE id = ?;",
+        [answer.employee_id, answer.employee_new_role_id],
+        (err, res) => {
+          console.log("employee updated");
+          viewEmployees();
+        }
+      );
+    });
 };
 
 // BONUS
