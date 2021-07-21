@@ -111,7 +111,7 @@ const viewEmployeesByDept = () => {
 };
 
 // functional
-// todo: list option employeeArray, show only selected option 
+// todo: list option employeeArray, show only selected option
 const viewEmployeesByManager = () => {
   connection.query(
     "SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY employee.manager_id;",
@@ -138,15 +138,80 @@ const viewRoles = () => {
   });
 };
 
+// BONUS
 // NOT FUNCTIONAL
 const viewBudgetByDepartment = () => {};
 
-// NOT FUNCTIONAL
-const addDepartment = () => {};
+// functional
+class NewDepartmentInfo {
+  // constructor elements are based off inquirer prompts
+  constructor(new_department_id, new_department_name) {
+    if (!(this instanceof NewDepartmentInfo)) {
+      // based on the mySQL schema
+      return new NewDepartmentInfo(id, name);
+    }
+    // this . [mysql spelling] = [inquirer prompt spelling]
+    this.id = new_department_id;
+    this.name = new_department_name;
+  }
+}
 
+// functional
+// todo: validate department id is not a duplicate
+// todo: capitalize first letter 
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "new_department_id",
+        type: "input",
+        message: "give the new department a unique id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "department id must be a number greater than zero";
+        },
+      },
+
+      {
+        name: "new_department_name",
+        type: "input",
+        message: "what is the name of the new department:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+    ])
+
+    .then(function (user) {
+      var newDepartment = new NewDepartmentInfo(
+        user.new_department_id,
+        user.new_department_name
+      );
+
+      connection.query(
+        "INSERT INTO department SET ?",
+        newDepartment,
+        function (err, res) {
+          if (err) throw err;
+          console.log("new department added to database");
+          console.log("");
+          viewDepartments();
+        }
+      );
+    });
+};
+
+// BASIC
 // NOT FUNCTIONAL
 const addEmployee = () => {};
 
+// BASIC
 // NOT FUNCTIONAL
 const addRole = () => {};
 
@@ -154,65 +219,81 @@ const addRole = () => {};
 // todo: improve functionality by removing from dynamic list
 const removeDepartment = () => {
   inquirer
-  .prompt([
-    {
-      name: "remove_department",
-      type: "input",
-      message: "enter department id to remove: "
-    }
-  ])
-  .then(answer => {
-    connection.query("DELETE FROM department WHERE id = ?",
-    answer.remove_department,
-    (err, res) => {
-      console.log("department removed");
-      viewDepartments();
-    })
-  })
+    .prompt([
+      {
+        name: "remove_department",
+        type: "input",
+        message: "enter department id to remove: ",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM department WHERE id = ?",
+        answer.remove_department,
+        (err, res) => {
+          console.log("department removed");
+          viewDepartments();
+        }
+      );
+    });
 };
 
 // functional - remove by id
 // todo: improve functionality by removing from dynamic list
 const removeEmployee = () => {
   inquirer
-  .prompt([
-    {
-      name: "remove_employee",
-      type: "input",
-      message: "enter employee id to remove: "
-    }
-  ])
-  .then(answer => {
-    connection.query("DELETE FROM employee WHERE id = ?",
-    answer.remove_employee, (err, res) => {
-      console.log("employee removed");
-      viewEmployees();
-    })
-  })
+    .prompt([
+      {
+        name: "remove_employee",
+        type: "input",
+        message: "enter employee id to remove: ",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM employee WHERE id = ?",
+        answer.remove_employee,
+        (err, res) => {
+          console.log("employee removed");
+          viewEmployees();
+        }
+      );
+    });
 };
 
 // functional - remove by id
 // todo: improve functionality by removing from dynamic list
 const removeRole = () => {
   inquirer
-  .prompt([
-    {
-      name: "remove_role",
-      type: "input",
-      message: "enter role id to remove: "
-    }
-  ])
-  .then(answer => {
-    connection.query("DELETE FROM role WHERE id = ?",
-    answer.remove_role, (err, res) => {
-      console.log("role removed");
-      viewRoles();
-    })
-  })
+    .prompt([
+      {
+        name: "remove_role",
+        type: "input",
+        message: "enter role id to remove: ",
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "DELETE FROM role WHERE id = ?",
+        answer.remove_role,
+        (err, res) => {
+          console.log("role removed");
+          viewRoles();
+        }
+      );
+    });
 };
 
+// BASIC
 // NOT FUNCTIONAL
-const updateEmployeeRole = () => {};
+const updateEmployeeRole = () => {
+  // step 1: what employee do you want to update:
+  // step 2: select new role
+};
 
+// BONUS
 // NOT FUNCTIONAL
-const updateEmployeesManager = () => {};
+const updateEmployeesManager = () => {
+  // step 1: what employee do you want to update?
+  // step 2: set new manager for selected employee
+};

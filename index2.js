@@ -147,11 +147,13 @@ const viewAllRoles = () => {
 
 // functional
 class NewDepartmentInfo {
+  // constructor elements are based off inquirer prompts
   constructor(new_department_id, new_department_name, new_department_manager) {
     if (!(this instanceof NewDepartmentInfo)) {
+      // based on the mySQL schema
       return new NewDepartmentInfo(department_id, department_name, manager);
     }
-
+    // this . [mysql spelling] = [inquirer prompt spelling]
     this.department_id = new_department_id;
     this.department_name = new_department_name;
     this.manager = new_department_manager;
