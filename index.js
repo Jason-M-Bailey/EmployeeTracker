@@ -2,6 +2,8 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
+let rolesArray = [];
+
 // create the connection information for the sql database
 const connection = mysql.createConnection({
   host: "localhost",
@@ -49,6 +51,9 @@ const allOptions = () => {
 
           "Update Employee Role",
           "Update Employee's Manager",
+
+          "Dynamic Roles Array",
+
           "Exit",
         ],
       },
@@ -83,6 +88,8 @@ const allOptions = () => {
         updateEmployeeRole();
       } else if (answer.select_option === "Update Employee's Manager") {
         updateEmployeesManager();
+      } else if (answer.select_option === "Dynamic Roles Array") {
+        dynamicRolesArray();
       } else if (answer.select_option === "Exit") {
         connection.end();
       } else connection.end();
@@ -93,11 +100,14 @@ const allOptions = () => {
 // todo: add Manager column with CONCAT(first_name,  ' ', last_name) AS Manager
 // todo: how to add comma in the salary field
 const viewEmployees = () => {
-  connection.query("SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;", (err, res) => {
-    console.table(res);
-    console.log("*****");
-    allOptions();
-  });
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;",
+    (err, res) => {
+      console.table(res);
+      console.log("*****");
+      allOptions();
+    }
+  );
 };
 
 // ORDER BY department_id
@@ -140,9 +150,19 @@ const viewRoles = () => {
   });
 };
 
-// BONUS
-// NOT FUNCTIONAL
-const viewBudgetByDepartment = () => {};
+// functional
+// todo: why is null null showing as first record?
+// todo: newly created departments do not appear in this table, why?
+const viewBudgetByDepartment = () => {
+  connection.query(
+    "SELECT department.name, SUM(salary) AS Budget FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id GROUP BY department_id;",
+    (err, res) => {
+      console.table(res);
+      console.log("*****");
+      allOptions();
+    }
+  );
+};
 
 // functional
 class NewDepartmentInfo {
@@ -232,7 +252,7 @@ class NewEmployeeInfo {
 
 // functional
 // todo: dynamic list for role
-// todo: dynamic list for manager
+// todo: dynamic list for manager - how to connect manager_id to employee name
 // todo: capitalize first letter
 const addEmployee = () => {
   inquirer
@@ -510,5 +530,45 @@ const updateEmployeesManager = () => {
         }
       );
     });
+};
 
+// experiment with dynamic arrays
+// todo: able to view dynamic array of roles but unsure how to connect the user's answer of role title to role_id on employee table
+const dynamicRolesArray = () => {
+  connection.query("SELECT title FROM role;", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].title);
+      console.log("for loop running...");
+      console.log(res[i].title);
+    }
+    console.log("*****");
+    console.log("for loop finished");
+    console.log(rolesArray);
+    console.log(rolesArray[2]);
+  });
+
+  inquirer
+    .prompt([
+      {
+        name: "employee_id",
+        type: "input",
+        message: "what is the employee's id: ",
+      },
+      {
+        name: "employee_new_role",
+        type: "list",
+        message: "what is the employee's new role: ",
+        choices: rolesArray,
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "UPDATE employee SET role = ? WHERE id = ?;",
+        [answer.employee_new_role, answer.employee_id],
+        (err, res) => {
+          console.log("employee updated");
+          viewEmployees();
+        }
+      );
+    });
 };

@@ -375,7 +375,7 @@ const removeDeptFunction = (departmentsArrayTwo) => {
       },
     ])
     .then((answer) => {
-      connection.query("DELETE FROM department WHERE name = ?"),
+      connection.query("DELETE FROM department WHERE name = ? "),
         answer.remove_department,
         (err, res) => {
           if (err) throw err;
