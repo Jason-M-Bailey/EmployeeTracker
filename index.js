@@ -171,7 +171,8 @@ const removeDepartment = () => {
   })
 };
 
-// NOT FUNCTIONAL
+// functional - remove by id
+// todo: improve functionality by removing from dynamic list
 const removeEmployee = () => {
   inquirer
   .prompt([
@@ -190,8 +191,25 @@ const removeEmployee = () => {
   })
 };
 
-// NOT FUNCTIONAL
-const removeRole = () => {};
+// functional - remove by id
+// todo: improve functionality by removing from dynamic list
+const removeRole = () => {
+  inquirer
+  .prompt([
+    {
+      name: "remove_role",
+      type: "input",
+      message: "enter role id to remove: "
+    }
+  ])
+  .then(answer => {
+    connection.query("DELETE FROM role WHERE id = ?",
+    answer.remove_role, (err, res) => {
+      console.log("role removed");
+      viewRoles();
+    })
+  })
+};
 
 // NOT FUNCTIONAL
 const updateEmployeeRole = () => {};
