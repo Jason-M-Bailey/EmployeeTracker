@@ -2,8 +2,6 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
-let rolesArray = [];
-
 // create the connection information for the sql database
 const connection = mysql.createConnection({
   host: "localhost",
@@ -25,6 +23,63 @@ connection.connect((err) => {
   console.log(`connected as id ${connection.threadId}`);
   viewEmployees();
 });
+
+let rolesArray = [];
+let departmentsArray = [];
+let employeesArray = [];
+
+// experiment with dynamic arrays
+// todo: able to view dynamic array of roles but unsure how to connect the user's answer of role title to role_id on employee table
+const dynamicRolesArray = () => {
+  connection.query("SELECT title FROM role;", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      rolesArray.push(res[i].title);
+      console.log("for loop running...");
+      console.log(res[i].title);
+    }
+    console.log("*****");
+    console.log("for loop finished");
+    console.log(rolesArray);
+    console.log("*****");
+  });
+
+  allOptions();
+};
+
+const dynamicDepartmentsArray = () => {
+  connection.query("SELECT name FROM department;", (err, res) => {
+    for (let i = 0; i < res.length; i++) {
+      departmentsArray.push(res[i].name);
+      console.log("for loop running...");
+      console.log(res[i].name);
+    }
+    console.log("*****");
+    console.log("for loop finished");
+    console.log(departmentsArray);
+    console.log("*****");
+  });
+
+  allOptions();
+};
+
+const dynamicEmployeesArray = () => {
+  connection.query(
+    "SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee;",
+    (err, res) => {
+      for (let i = 0; i < res.length; i++) {
+        employeesArray.push(res[i].name);
+        console.log("for loop running...");
+        console.log(res[i].name);
+      }
+      console.log("*****");
+      console.log("for loop finished");
+      console.log(employeesArray);
+      console.log("*****");
+    }
+  );
+
+  allOptions();
+};
 
 const allOptions = () => {
   inquirer
@@ -52,6 +107,8 @@ const allOptions = () => {
           "Update Employee Role",
           "Update Employee's Manager",
 
+          "Dynamic Departments Array",
+          "Dynamic Employees Array",
           "Dynamic Roles Array",
 
           "Exit",
@@ -88,6 +145,10 @@ const allOptions = () => {
         updateEmployeeRole();
       } else if (answer.select_option === "Update Employee's Manager") {
         updateEmployeesManager();
+      } else if (answer.select_option === "Dynamic Departments Array") {
+        dynamicDepartmentsArray();
+      } else if (answer.select_option === "Dynamic Employees Array") {
+        dynamicEmployeesArray();
       } else if (answer.select_option === "Dynamic Roles Array") {
         dynamicRolesArray();
       } else if (answer.select_option === "Exit") {
@@ -135,6 +196,7 @@ const viewEmployeesByManager = () => {
 };
 
 // functional
+// todo: turn this into a list of current departments which reference other functions
 const viewDepartments = () => {
   connection.query("SELECT * FROM department;", (err, res) => {
     console.table(res);
@@ -524,47 +586,6 @@ const updateEmployeesManager = () => {
       connection.query(
         "UPDATE employee SET manager_id = ? WHERE id = ?;",
         [answer.employee_new_manager_id, answer.employee_id],
-        (err, res) => {
-          console.log("employee updated");
-          viewEmployees();
-        }
-      );
-    });
-};
-
-// experiment with dynamic arrays
-// todo: able to view dynamic array of roles but unsure how to connect the user's answer of role title to role_id on employee table
-const dynamicRolesArray = () => {
-  connection.query("SELECT title FROM role;", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      rolesArray.push(res[i].title);
-      console.log("for loop running...");
-      console.log(res[i].title);
-    }
-    console.log("*****");
-    console.log("for loop finished");
-    console.log(rolesArray);
-    console.log(rolesArray[2]);
-  });
-
-  inquirer
-    .prompt([
-      {
-        name: "employee_id",
-        type: "input",
-        message: "what is the employee's id: ",
-      },
-      {
-        name: "employee_new_role",
-        type: "list",
-        message: "what is the employee's new role: ",
-        choices: rolesArray,
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "UPDATE employee SET role = ? WHERE id = ?;",
-        [answer.employee_new_role, answer.employee_id],
         (err, res) => {
           console.log("employee updated");
           viewEmployees();
