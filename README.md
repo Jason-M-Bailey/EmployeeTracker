@@ -74,7 +74,7 @@ How do you deliver this? Here are some guidelines:
   
   * View roles ✔️
 
-  * Add departments ❓
+  * Add departments ✔️
 
   * Add employees ❓
   
@@ -92,9 +92,9 @@ How do you deliver this? Here are some guidelines:
 
   * Delete departments ✔️
   
-  * Delete employees ❓ 
+  * Delete employees ✔️
   
-  * Delete roles ❓ 
+  * Delete roles ✔️
 
   * View the total utilized budget of a department -- ie the combined salaries of all employees in that department ❓
 

@@ -158,7 +158,7 @@ class NewDepartmentInfo {
 
 // functional
 // todo: validate department id is not a duplicate
-// todo: capitalize first letter 
+// todo: capitalize first letter
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -207,9 +207,88 @@ const addDepartment = () => {
     });
 };
 
-// BASIC
-// NOT FUNCTIONAL
-const addEmployee = () => {};
+class NewEmployeeInfo {
+  // constructor elements are based off inquirer prompts
+  constructor(
+    employee_first_name,
+    employee_last_name,
+    employee_role_id,
+    employee_manager_id
+  ) {
+    if (!(this instanceof NewEmployeeInfo)) {
+      // based on the mySQL schema
+      return new NewEmployeeInfo(first_name, last_name, role_id, manager_id);
+    }
+
+    // this . [mysql spelling] = [inquirer prompt spelling]
+    this.first_name = employee_first_name;
+    this.last_name = employee_last_name;
+    this.role_id = employee_role_id;
+    this.manager_id = employee_manager_id;
+  }
+}
+
+// functional
+// todo: dynamic list for role
+// todo: dynamic list for manager
+// todo: capitalize first letter
+const addEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        name: "employee_first_name",
+        type: "input",
+        message: "what is the employee's first name:",
+
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "employee_last_name",
+        type: "input",
+        message: "what is the employee's last name:",
+        validate: (answer) => {
+          if (answer !== "") {
+            return true;
+          }
+          return "Names must have one character or more.";
+        },
+      },
+      {
+        name: "employee_role_id",
+        type: "input",
+        message: "what is the employee's role id:",
+      },
+      {
+        name: "employee_manager_id",
+        type: "input",
+        message: "enter employee id of their manager: ",
+      },
+    ])
+    .then(function (user) {
+      var newEmployee = new NewEmployeeInfo(
+        // inquirer prompt names
+        user.employee_first_name,
+        user.employee_last_name,
+        user.employee_role_id,
+        user.employee_manager_id
+      );
+      connection.query(
+        "INSERT INTO employee SET ?",
+        newEmployee,
+        function (err, res) {
+          if (err) throw err;
+          console.log("new employee added to database");
+          console.log("*****");
+          viewEmployees();
+        }
+      );
+    });
+};
 
 // BASIC
 // NOT FUNCTIONAL

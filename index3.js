@@ -260,9 +260,10 @@ class NewEmployeeInfo {
   // inquirer prompts
   constructor(employee_first_name, employee_last_name) {
     if (!(this instanceof NewEmployeeInfo)) {
+      // mysql column names
       return new NewEmployeeInfo(first_name, last_name);
     }
-
+    //this.mysql = inquirer prompt name
     this.first_name = employee_first_name;
     this.last_name = employee_last_name;
   }
