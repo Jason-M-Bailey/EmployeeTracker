@@ -68,17 +68,17 @@ How do you deliver this? Here are some guidelines:
 
 * The command-line application should allow users to:
 
+  * View departments ✔️
+  
+  * View employees ✔️
+  
+  * View roles ✔️
+
   * Add departments ❓
 
-  * Add roles ❓
-  
   * Add employees ❓
-
-  * View departments ❓
   
-  * View roles ❓
-  
-  * View employees ❓
+  * Add roles ❓
 
   * Update employee roles ❓
 
@@ -90,11 +90,11 @@ How do you deliver this? Here are some guidelines:
 
   * View employees by manager ❓
 
-  * Delete departments ❓
-  
-  * Delete roles ❓ 
+  * Delete departments ✔️
   
   * Delete employees ❓ 
+  
+  * Delete roles ❓ 
 
   * View the total utilized budget of a department -- ie the combined salaries of all employees in that department ❓
 

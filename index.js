@@ -172,7 +172,23 @@ const removeDepartment = () => {
 };
 
 // NOT FUNCTIONAL
-const removeEmployee = () => {};
+const removeEmployee = () => {
+  inquirer
+  .prompt([
+    {
+      name: "remove_employee",
+      type: "input",
+      message: "enter employee id to remove: "
+    }
+  ])
+  .then(answer => {
+    connection.query("DELETE FROM employee WHERE id = ?",
+    answer.remove_employee, (err, res) => {
+      console.log("employee removed");
+      viewEmployees();
+    })
+  })
+};
 
 // NOT FUNCTIONAL
 const removeRole = () => {};
