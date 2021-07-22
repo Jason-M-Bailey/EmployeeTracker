@@ -31,6 +31,8 @@ let rolesArray = [];
 // experiment with dynamic arrays
 // todo: able to view dynamic array of roles but unsure how to connect the user's answer to insert into db
 const dynamicDepartmentsArray = () => {
+  let departmentsArray = [];
+
   connection.query("SELECT name FROM department;", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       departmentsArray.push(res[i].name);
@@ -43,6 +45,7 @@ const dynamicDepartmentsArray = () => {
 };
 
 const dynamicEmployeesArray = () => {
+  let employeesArray = [];
   connection.query(
     "SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee;",
     (err, res) => {
@@ -62,6 +65,7 @@ const dynamicEmployeesArray = () => {
 };
 
 const dynamicRolesArray = () => {
+  let rolesArray = [];
   connection.query("SELECT title FROM role;", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       rolesArray.push(res[i].title);
@@ -77,6 +81,38 @@ const dynamicRolesArray = () => {
   allOptions();
 };
 
+// static queries
+// todo: use placeholders for department_id = ? instead of static
+const viewEngineeringDept = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
+const viewLegalDept = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
+const viewSalesDept = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
 // functional
 const allOptions = () => {
   inquirer
@@ -86,6 +122,7 @@ const allOptions = () => {
         type: "list",
         message: "what would you like to do next:",
         choices: [
+          "View",
           "View Employees",
           "View Employees By Department",
           "View Employees By Manager",
@@ -114,7 +151,9 @@ const allOptions = () => {
     ])
 
     .then((answer) => {
-      if (answer.select_option === "View Employees") {
+      if (answer.select_option === "View") {
+        view();
+      } else if (answer.select_option === "View Employees") {
         viewEmployees();
       } else if (answer.select_option === "View Employees By Department") {
         viewEmployeesByDept();
@@ -154,6 +193,41 @@ const allOptions = () => {
     });
 };
 
+// NOT FUNCTIONAL 
+const view = () => {
+  inquirer
+    .prompt([
+      {
+        name: "view_options",
+        type: "list",
+        message: "what do you want to view: ",
+        choices: [
+          "Employees",
+          "Employees By Department",
+          "Employees By Manager",
+          "Departments",
+          "Roles",
+          "Budget By Department",
+        ],
+      },
+    ])
+    .then((answer) => {
+      if (answer.view_options === "Employees") {
+        viewEmployees();
+      } else if (answer.select_option === "Employees By Department") {
+        viewEmployeesByDept();
+      } else if (answer.select_option === "Employees By Manager") {
+        viewEmployeesByManager();
+      } else if (answer.select_option === "Departments") {
+        viewDepartments();
+      } else if (answer.select_option === "Roles") {
+        viewRoles();
+      } else if (answer.select_option === "Budget By Department") {
+        viewBudgetByDepartment();
+      }
+    });
+};
+
 // functional
 // todo: add Manager column with CONCAT(first_name,  ' ', last_name) AS Manager
 // todo: how to add comma in the salary field
@@ -161,14 +235,13 @@ const allOptions = () => {
 // https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_format
 const viewEmployees = () => {
   connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;",
+    "SELECT employee.id, CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;",
     (err, res) => {
       console.table(res);
       console.log("*****");
       allOptions();
     }
   );
-
 
   // inquirer
   // .prompt([
@@ -212,16 +285,27 @@ const viewEmployees = () => {
   // })
 };
 
-// ORDER BY department_id
+// functional
 // todo: list option departmentArray, show only department selected
+// todo: why does next prompt overlap console.table(res);
 const viewEmployeesByDept = () => {
-  connection.query(
-    "SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY role.department_id;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
+  inquirer
+    .prompt([
+      {
+        name: "select_a_department_please",
+        type: "list",
+        message: "which dept: ",
+        choices: ["Engineering", "Legal", "Sales"],
+      },
+    ])
+
+    .then((answer) => {
+      if (answer.select_a_department_please === "Engineering") {
+        viewEngineeringDept();
+      } else if (answer.select_a_department_please === "Legal") {
+        viewLegalDept();
+      } else viewSalesDept();
+    });
 };
 
 // functional
