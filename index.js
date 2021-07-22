@@ -25,42 +25,6 @@ connection.connect((err) => {
   allOptions();
 });
 
-// experiment with dynamic arrays
-// todo: able to view dynamic array of roles but unsure how to connect the user's answer to insert into db
-const dynamicDepartmentsArray = () => {
-  let departmentsArray = [];
-
-  connection.query("SELECT name FROM department;", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      departmentsArray.push(res[i].name);
-    }
-    console.log(departmentsArray);
-    console.log("*****");
-  });
-
-  allOptions();
-};
-
-const dynamicEmployeesArray = () => {
-  let employeesArray = [];
-  connection.query(
-    "SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee;",
-    (err, res) => {
-      for (let i = 0; i < res.length; i++) {
-        employeesArray.push(res[i].name);
-        console.log("for loop running...");
-        console.log(res[i].name);
-      }
-      console.log("*****");
-      console.log("for loop finished");
-      console.log(employeesArray);
-      console.log("*****");
-    }
-  );
-
-  allOptions();
-};
-
 // functional
 const allOptions = () => {
   inquirer
@@ -143,71 +107,63 @@ const viewEmployees = () => {
 // todo: update choices to be dynamic
 // todo: update tables based on dept chosen
 const viewEmployeesByDept = () => {
-  inquirer
-    .prompt([
-      {
-        name: "select_a_department_please",
-        type: "list",
-        message: "which dept: ",
-        choices: ["Admin", "Engineering", "Legal", "Sales"],
-      },
-    ])
-
-    .then((answer) => {
-      if (answer.select_a_department_please === "Admin") {
-        viewAdminDeptEmployees();
-      } else if (answer.select_a_department_please === "Engineering") {
-        viewEngineeringDeptEmployees();
-      } else if (answer.select_a_department_please === "Legal") {
-        viewLegalDeptEmployees();
-      } else viewSalesDeptEmployees();
+  connection.query("SELECT * FROM department", (err, res) => {
+    const departments = res.map((department) => {
+      return {
+        name: department.name,
+        value: department.id,
+      };
     });
-};
 
-// static queries
-// todo: use placeholders for department_id = ? instead of static
-const viewAdminDeptEmployees = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 4;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
+    inquirer
+      .prompt([
+        {
+          name: "view_employees_by_department",
+          type: "list",
+          message: "which department's employees do you want to view: ",
+          choices: departments,
+        },
+      ])
+      .then((answer) => {
+        connection.query(
+          "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = ?;",
+          answer.view_employees_by_department,
+          (err, res) => {
+            console.table(res);
+            allOptions();
+          }
+        );
+      });
+  });
 
-const viewEngineeringDeptEmployees = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
+  //
+  // THIS WORKS BUT ITS NOT PRETTY
+  //
+  // inquirer
+  //   .prompt([
+  //     {
+  //       name: "select_a_department_please",
+  //       type: "list",
+  //       message: "which dept: ",
+  //       choices: ["Admin", "Engineering", "Legal", "Sales"],
+  //     },
+  //   ])
 
-const viewLegalDeptEmployees = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
-
-const viewSalesDeptEmployees = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
+  //   .then((answer) => {
+  //     if (answer.select_a_department_please === "Admin") {
+  //       viewAdminDeptEmployees();
+  //     } else if (answer.select_a_department_please === "Engineering") {
+  //       viewEngineeringDeptEmployees();
+  //     } else if (answer.select_a_department_please === "Legal") {
+  //       viewLegalDeptEmployees();
+  //     } else viewSalesDeptEmployees();
+  //   });
+  //
+  // END OF WORKING FUNCTION
 };
 
 // functional
-// todo: list option employeeArray, show only selected option
+// todo: check mysql with the table created called Manager
 const viewEmployeesByManager = () => {
   connection.query(
     "SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY employee.manager_id;",
@@ -219,7 +175,6 @@ const viewEmployeesByManager = () => {
 };
 
 // functional
-// todo: turn this into a list of current departments which reference other functions
 const viewDepartments = () => {
   connection.query("SELECT * FROM department;", (err, res) => {
     console.table(res);
@@ -236,8 +191,6 @@ const viewRoles = () => {
 };
 
 // functional
-// todo: why is null null showing as first record?
-// todo: newly created departments do not appear in this table, why?
 const viewBudgetByDepartment = () => {
   connection.query(
     "SELECT department.name, SUM(salary) AS Budget FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id GROUP BY department_id;",
@@ -438,62 +391,67 @@ class NewRoleInfo {
 }
 
 // functional
-// todo: capitalize first letter of title
-// todo: validate role id is not a duplicate
-// todo: dynamic list for department choice rather than input id
 const addRole = () => {
-  inquirer
-    .prompt([
-      {
-        name: "newRole_title",
-        type: "input",
-        message: "what is the title of the role:",
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-      {
-        name: "newRole_salary",
-        type: "input",
-        message: "what is the salary for the role:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "salaries must be a number greater than zero";
-        },
-      },
-      {
-        name: "newRole_department_id",
-        type: "input",
-        message: "what is the department id:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "department id must be a number greater than zero";
-        },
-      },
-    ])
-    .then(function (user) {
-      var newRole = new NewRoleInfo(
-        // inquirer prompt names
-        user.newRole_title,
-        user.newRole_salary,
-        user.newRole_department_id
-      );
-      connection.query("INSERT INTO role SET ?", newRole, function (err, res) {
-        if (err) throw err;
-        console.log("new role added");
-        console.log("*****");
-        viewRoles();
-      });
+  connection.query("SELECT * FROM department", (err, res) => {
+    const departments = res.map((department) => {
+      return {
+        name: department.name,
+        value: department.id,
+      };
     });
+
+    inquirer
+      .prompt([
+        {
+          name: "newRole_title",
+          type: "input",
+          message: "what is the title of the role:",
+          validate: (answer) => {
+            if (
+              answer.match(new RegExp(/^\b[A-Z][a-z]*( [A-Z][a-z]*)*\b$/)) !==
+              null
+            ) {
+              return true;
+            }
+            return "Names must be capitalized";
+          },
+        },
+        {
+          name: "newRole_salary",
+          type: "input",
+          message: "what is the salary for the role:",
+          validate: (answer) => {
+            const pass = answer.match(/^[1-9]\d*$/);
+            if (pass) {
+              return true;
+            }
+            return "salaries must be a number greater than zero";
+          },
+        },
+        {
+          name: "newRole_department_id",
+          type: "list",
+          message: "which department: ",
+          choices: departments,
+        },
+      ])
+      .then(function (user) {
+        var newRole = new NewRoleInfo(
+          // inquirer prompt names
+          user.newRole_title,
+          user.newRole_salary,
+          user.newRole_department_id
+        );
+        connection.query(
+          "INSERT INTO role SET ?",
+          newRole,
+          function (err, res) {
+            if (err) throw err;
+            viewRoles();
+          }
+        );
+      });
+  });
 };
 
 const remove = () => {
