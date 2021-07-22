@@ -61,48 +61,6 @@ const dynamicEmployeesArray = () => {
   allOptions();
 };
 
-// static queries
-// todo: use placeholders for department_id = ? instead of static
-const viewAdminDept = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 4;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
-
-const viewEngineeringDept = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
-
-const viewLegalDept = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
-
-const viewSalesDept = () => {
-  connection.query(
-    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
-};
-
 // functional
 const allOptions = () => {
   inquirer
@@ -114,9 +72,7 @@ const allOptions = () => {
         choices: [
           "View",
           "Add",
-          "Remove Department",
-          "Remove Employee",
-          "Remove Role",
+          "Remove",
           "Update Employee",
           "Exit",
         ],
@@ -128,12 +84,8 @@ const allOptions = () => {
         view();
       } else if (answer.select_option === "Add") {
         add();
-      } else if (answer.select_option === "Remove Department") {
-        removeDepartment();
-      } else if (answer.select_option === "Remove Employee") {
-        removeEmployee();
-      } else if (answer.select_option === "Remove Role") {
-        removeRole();
+      } else if (answer.select_option === "Remove") {
+        remove();
       } else if (answer.select_option === "Update Employee") {
         updateEmployee();
       } else {
@@ -209,13 +161,55 @@ const viewEmployeesByDept = () => {
 
     .then((answer) => {
       if (answer.select_a_department_please === "Admin") {
-        viewAdminDept();
+        viewAdminDeptEmployees();
       } else if (answer.select_a_department_please === "Engineering") {
-        viewEngineeringDept();
+        viewEngineeringDeptEmployees();
       } else if (answer.select_a_department_please === "Legal") {
-        viewLegalDept();
-      } else viewSalesDept();
+        viewLegalDeptEmployees();
+      } else viewSalesDeptEmployees();
     });
+};
+
+// static queries
+// todo: use placeholders for department_id = ? instead of static
+const viewAdminDeptEmployees = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 4;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
+const viewEngineeringDeptEmployees = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
+const viewLegalDeptEmployees = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
+const viewSalesDeptEmployees = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
 };
 
 // functional
@@ -261,6 +255,7 @@ const viewBudgetByDepartment = () => {
   );
 };
 
+//
 const add = () => {
   inquirer
     .prompt([
@@ -276,9 +271,7 @@ const add = () => {
         addDepartment();
       } else if (answer.add_options === "Employee") {
         addEmployee();
-      } else if (answer.add_options === "Role") {
-        addRole();
-      } else connection.end();
+      } else addRole();
     });
 };
 
@@ -506,6 +499,25 @@ const addRole = () => {
         console.log("*****");
         viewRoles();
       });
+    });
+};
+
+const remove = () => {
+  inquirer
+    .prompt([
+      {
+        name: "remove_options",
+        type: "list",
+        message: "what do you want to remove: ",
+        choices: ["Department", "Employee", "Role"],
+      },
+    ])
+    .then((answer) => {
+      if (answer.remove_options === "Department") {
+        removeDepartment();
+      } else if (answer.remove_options === "Employee") {
+        removeEmployee();
+      } else removeRole();
     });
 };
 
