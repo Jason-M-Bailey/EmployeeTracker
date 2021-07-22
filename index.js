@@ -25,7 +25,7 @@ connection.connect((err) => {
   allOptions();
 });
 
-// functional
+// home page -- where all other functions return
 const allOptions = () => {
   inquirer
     .prompt([
@@ -52,8 +52,7 @@ const allOptions = () => {
     });
 };
 
-// functional
-// todo: view by manager needs improvement
+// combines all view options into one list
 const view = () => {
   inquirer
     .prompt([
@@ -135,31 +134,6 @@ const viewEmployeesByDept = () => {
         );
       });
   });
-
-  //
-  // THIS WORKS BUT ITS NOT PRETTY
-  //
-  // inquirer
-  //   .prompt([
-  //     {
-  //       name: "select_a_department_please",
-  //       type: "list",
-  //       message: "which dept: ",
-  //       choices: ["Admin", "Engineering", "Legal", "Sales"],
-  //     },
-  //   ])
-
-  //   .then((answer) => {
-  //     if (answer.select_a_department_please === "Admin") {
-  //       viewAdminDeptEmployees();
-  //     } else if (answer.select_a_department_please === "Engineering") {
-  //       viewEngineeringDeptEmployees();
-  //     } else if (answer.select_a_department_please === "Legal") {
-  //       viewLegalDeptEmployees();
-  //     } else viewSalesDeptEmployees();
-  //   });
-  //
-  // END OF WORKING FUNCTION
 };
 
 // functional
@@ -184,7 +158,7 @@ const viewDepartments = () => {
 
 // functional
 const viewRoles = () => {
-  connection.query("SELECT * FROM role;", (err, res) => {
+  connection.query("SELECT id AS ID, title AS Title, salary AS Salary FROM role;", (err, res) => {
     console.table(res);
     allOptions();
   });
@@ -202,7 +176,7 @@ const viewBudgetByDepartment = () => {
   );
 };
 
-//
+// combines all add options into one list
 const add = () => {
   inquirer
     .prompt([
@@ -222,7 +196,7 @@ const add = () => {
     });
 };
 
-// functional
+// Class to be able to add new department
 class NewDepartmentInfo {
   // constructor elements are based off inquirer prompts
   constructor(new_department_name) {
@@ -235,7 +209,7 @@ class NewDepartmentInfo {
   }
 }
 
-// functional
+// Add new department to the database
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -254,23 +228,20 @@ const addDepartment = () => {
         },
       },
     ])
-
     .then(function (user) {
       var newDepartment = new NewDepartmentInfo(user.new_department_name);
-
       connection.query(
         "INSERT INTO department SET ?",
         newDepartment,
         function (err, res) {
           if (err) throw err;
-          console.log("new department added to database");
-          console.log("");
           viewDepartments();
         }
       );
     });
 };
 
+// Class to be able to add new employee
 class NewEmployeeInfo {
   // constructor elements are based off inquirer prompts
   constructor(
@@ -292,7 +263,7 @@ class NewEmployeeInfo {
   }
 }
 
-// functional
+// Add new employee to the database
 const addEmployee = () => {
   connection.query("SELECT * FROM role;", (err, res) => {
     const roles = res.map((role) => {
@@ -376,6 +347,7 @@ const addEmployee = () => {
   });
 };
 
+// Class to be able to add new role
 class NewRoleInfo {
   // inquirer prompt spelling
   constructor(newRole_title, newRole_salary, newRole_department_id) {
@@ -390,7 +362,7 @@ class NewRoleInfo {
   }
 }
 
-// functional
+// Add new role to the database
 const addRole = () => {
   connection.query("SELECT * FROM department", (err, res) => {
     const departments = res.map((department) => {
@@ -454,6 +426,8 @@ const addRole = () => {
   });
 };
 
+
+// Combines all remove options one list
 const remove = () => {
   inquirer
     .prompt([
@@ -473,7 +447,7 @@ const remove = () => {
     });
 };
 
-// functional - remove by id
+// Remove department from database
 const removeDepartment = () => {
   connection.query("SELECT * FROM department", (err, res) => {
     const departments = res.map((department) => {
@@ -504,7 +478,7 @@ const removeDepartment = () => {
   });
 };
 
-// functional - remove by id
+// Remove employee from database
 const removeEmployee = () => {
   connection.query("SELECT * FROM employee", (err, res) => {
     const employees = res.map((employee) => {
@@ -535,8 +509,7 @@ const removeEmployee = () => {
   });
 };
 
-// functional - remove by id
-// todo: improve functionality by removing from dynamic list
+// Remove role from database
 const removeRole = () => {
   connection.query("SELECT * FROM role", (err, res) => {
     const roles = res.map((role) => {
@@ -567,7 +540,7 @@ const removeRole = () => {
   });
 };
 
-// functional
+// Update an employee's role and manager
 const updateEmployee = () => {
   connection.query("SELECT * FROM role;", (err, res) => {
     const roles = res.map((role) => {
