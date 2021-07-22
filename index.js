@@ -69,13 +69,7 @@ const allOptions = () => {
         name: "select_option",
         type: "list",
         message: "what would you like to do next:",
-        choices: [
-          "View",
-          "Add",
-          "Remove",
-          "Update Employee",
-          "Exit",
-        ],
+        choices: ["View", "Add", "Remove", "Update Employee", "Exit"],
       },
     ])
 
@@ -522,72 +516,97 @@ const remove = () => {
 };
 
 // functional - remove by id
-// todo: improve functionality by removing from dynamic list
 const removeDepartment = () => {
-  inquirer
-    .prompt([
-      {
-        name: "remove_department",
-        type: "input",
-        message: "enter department id to remove: ",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "DELETE FROM department WHERE id = ?",
-        answer.remove_department,
-        (err, res) => {
-          console.log("department removed");
-          viewDepartments();
-        }
-      );
+  connection.query("SELECT * FROM department", (err, res) => {
+    const departments = res.map((department) => {
+      return {
+        name: department.name,
+        value: department.id,
+      };
     });
+
+    inquirer
+      .prompt([
+        {
+          name: "remove_department",
+          type: "list",
+          message: "which department do you want to remove: ",
+          choices: departments,
+        },
+      ])
+      .then((answer) => {
+        connection.query(
+          "DELETE FROM department WHERE id = ?",
+          answer.remove_department,
+          (err, res) => {
+            viewDepartments();
+          }
+        );
+      });
+  });
 };
 
 // functional - remove by id
-// todo: improve functionality by removing from dynamic list
 const removeEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        name: "remove_employee",
-        type: "input",
-        message: "enter employee id to remove: ",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "DELETE FROM employee WHERE id = ?",
-        answer.remove_employee,
-        (err, res) => {
-          console.log("employee removed");
-          viewEmployees();
-        }
-      );
+  connection.query("SELECT * FROM employee", (err, res) => {
+    const employees = res.map((employee) => {
+      return {
+        name: employee.first_name + " " + employee.last_name,
+        value: employee.id,
+      };
     });
+
+    inquirer
+      .prompt([
+        {
+          name: "remove_employee",
+          type: "list",
+          message: "which employee do you want to remove: ",
+          choices: employees,
+        },
+      ])
+      .then((answer) => {
+        connection.query(
+          "DELETE FROM employee WHERE id = ?",
+          answer.remove_employee,
+          (err, res) => {
+            viewEmployees();
+          }
+        );
+      });
+  });
 };
 
 // functional - remove by id
 // todo: improve functionality by removing from dynamic list
 const removeRole = () => {
-  inquirer
-    .prompt([
-      {
-        name: "remove_role",
-        type: "input",
-        message: "enter role id to remove: ",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "DELETE FROM role WHERE id = ?",
-        answer.remove_role,
-        (err, res) => {
-          console.log("role removed");
-          viewRoles();
-        }
-      );
+  connection.query("SELECT * FROM role", (err, res) => {
+    const roles = res.map((role) => {
+      return {
+        name: role.title,
+        value: role.id,
+      };
     });
+
+    inquirer
+      .prompt([
+        {
+          name: "remove_role",
+          type: "list",
+          message: "which role do you want to remove: ",
+          choices: roles,
+        },
+      ])
+      .then((answer) => {
+        connection.query(
+          "DELETE FROM role WHERE id = ?",
+          answer.remove_role,
+          (err, res) => {
+            viewRoles();
+          }
+        );
+      });
+  });
 };
 
 // functional
