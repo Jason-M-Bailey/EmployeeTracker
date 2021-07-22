@@ -34,11 +34,7 @@ const dynamicDepartmentsArray = () => {
   connection.query("SELECT name FROM department;", (err, res) => {
     for (let i = 0; i < res.length; i++) {
       departmentsArray.push(res[i].name);
-      console.log("for loop running...");
-      console.log(res[i].name);
     }
-    console.log("*****");
-    console.log("for loop finished");
     console.log(departmentsArray);
     console.log("*****");
   });
@@ -161,6 +157,8 @@ const allOptions = () => {
 // functional
 // todo: add Manager column with CONCAT(first_name,  ' ', last_name) AS Manager
 // todo: how to add comma in the salary field
+// mysql > SELECT FORMAT(12332.2,0); -> '12,332'
+// https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_format
 const viewEmployees = () => {
   connection.query(
     "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;",
@@ -170,6 +168,48 @@ const viewEmployees = () => {
       allOptions();
     }
   );
+
+
+  // inquirer
+  // .prompt([
+  //   {
+  //     name: "select_department",
+  //     type: "list",
+  //     message: "which department do you want to view: ",
+  //     choices: ["Engineering", "Legal", "Sales"],
+  //   }
+  // ])
+
+  // .then((answer) => {
+  //   if (answer.select_department === "Engineering") {
+  //     connection.query(
+  //         "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
+  //         (err, res) => {
+  //           console.table(res);
+  //           console.log("*****");
+  //           // allOptions();
+  //         }
+  //       );
+  //   } else if (answer.select_option === "Legal") {
+  //     connection.query(
+  //       "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
+  //       (err, res) => {
+  //         console.table(res);
+  //         console.log("*****");
+  //         // allOptions();
+  //       }
+  //     );
+  //   } else {
+  //     connection.query(
+  //       "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
+  //       (err, res) => {
+  //         console.table(res);
+  //         console.log("*****");
+  //         // allOptions();
+  //       }
+  //     );
+  //   }
+  // })
 };
 
 // ORDER BY department_id
@@ -217,6 +257,8 @@ const viewRoles = () => {
 // todo: why is null null showing as first record?
 // todo: newly created departments do not appear in this table, why?
 const viewBudgetByDepartment = () => {
+  dynamicDepartmentsArray();
+
   connection.query(
     "SELECT department.name, SUM(salary) AS Budget FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id GROUP BY department_id;",
     (err, res) => {
@@ -343,17 +385,40 @@ const addEmployee = () => {
           return "Names must have one character or more.";
         },
       },
+
+      // todo: this is where the next 2 prompts should have a dynamic array
+      // todo: employee role
+      // todo: choose manager
+
       {
         name: "employee_role_id",
         type: "input",
         message: "what is the employee's role id:",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "role id must be a number greater than zero";
+        },
       },
       {
         name: "employee_manager_id",
         type: "input",
         message: "enter employee id of their manager: ",
+        validate: (answer) => {
+          const pass = answer.match(/^[1-9]\d*$/);
+          if (pass) {
+            return true;
+          }
+          return "manager id must be a number greater than zero";
+        },
       },
     ])
+
+    // todo: how to connect role.title to employee.role_id
+    // todo: how to connect CONCAT(employee.first_name, ' ', employee_last_name) as Name to employee.manager_id
+
     .then(function (user) {
       var newEmployee = new NewEmployeeInfo(
         // inquirer prompt names
