@@ -103,8 +103,6 @@ const viewEmployees = () => {
 };
 
 // functional
-// todo: update choices to be dynamic
-// todo: update tables based on dept chosen
 const viewEmployeesByDept = () => {
   connection.query("SELECT * FROM department", (err, res) => {
     const departments = res.map((department) => {
@@ -137,15 +135,39 @@ const viewEmployeesByDept = () => {
 };
 
 // functional
-// todo: check mysql with the table created called Manager
+// todo: how to filter list to only show employees that are a manager
 const viewEmployeesByManager = () => {
-  connection.query(
-    "SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY employee.manager_id;",
-    (err, res) => {
-      console.table(res);
-      allOptions();
-    }
-  );
+  connection.query("SELECT * FROM employee", (err, res) => {
+    const managers = res.map((employee) => {
+      return {
+        name: employee.first_name + " " + employee.last_name,
+        value: employee.id,
+      };
+    });
+
+    inquirer
+      .prompt([
+        {
+          name: "view_employees_by_manager",
+          type: "list",
+          message: "which manager's employees do you want to view: ",
+          choices: managers,
+        },
+      ])
+      .then((answer) => {
+        connection.query(
+          "SELECT CONCAT(Manager.first_name, ' ', Manager.last_name) AS Manager, CONCAT(employee.first_name,  ' ', employee.last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS Manager ON employee.manager_id = Manager.id WHERE employee.manager_id = ?;",
+          answer.view_employees_by_manager,
+          (err, res) => {
+            console.log("*****");
+
+            console.log("*****");
+            console.table(res);
+            allOptions();
+          }
+        );
+      });
+  });
 };
 
 // functional
@@ -158,10 +180,13 @@ const viewDepartments = () => {
 
 // functional
 const viewRoles = () => {
-  connection.query("SELECT id AS ID, title AS Title, salary AS Salary FROM role;", (err, res) => {
-    console.table(res);
-    allOptions();
-  });
+  connection.query(
+    "SELECT id AS ID, title AS Title, salary AS Salary FROM role;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
 };
 
 // functional
@@ -425,7 +450,6 @@ const addRole = () => {
       });
   });
 };
-
 
 // Combines all remove options one list
 const remove = () => {
