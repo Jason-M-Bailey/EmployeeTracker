@@ -588,32 +588,55 @@ const removeRole = () => {
 };
 
 // functional
-// todo: improve functionality by selecting employee from dynamic list
-// todo: improve functionality by selecting new role from dynamic list
 const updateEmployeeRole = () => {
-  inquirer
-    .prompt([
-      {
-        name: "employee_id",
-        type: "input",
-        message: "what is the employee's id: ",
-      },
-      {
-        name: "employee_new_role_id",
-        type: "input",
-        message: "what is the employee's new role id: ",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "UPDATE employee SET role_id = ? WHERE id = ?;",
-        [answer.employee_new_role_id, answer.employee_id],
-        (err, res) => {
-          console.log("employee updated");
-          viewEmployees();
-        }
-      );
+  connection.query("SELECT * FROM role;", (err, res) => {
+    const roles = res.map((role) => {
+      return {
+        name: role.title,
+        value: role.id,
+      };
     });
+
+    connection.query("SELECT * FROM employee;", (err, res) => {
+      const employees = res.map((employee) => {
+        return {
+          name: employee.first_name + " " + employee.last_name,
+          value: employee.id,
+        };
+      });
+
+      inquirer
+        .prompt([
+          {
+            name: "pick_employee",
+            type: "list",
+            message: "which employee do you want to update: ",
+            choices: employees,
+          },
+          {
+            name: "new_role",
+            type: "list",
+            message: "what is their new role: ",
+            choices: roles,
+          },
+          {
+            name: "new_manager",
+            type: "list",
+            message: "who is their manager: ",
+            choices: employees,
+          },
+        ])
+        .then((answer) => {
+          connection.query(
+            "UPDATE employee SET role_id = ?, manager_id = ? WHERE id = ?",
+            [answer.new_role, answer.new_manager, answer.pick_employee],
+            (err, res) => {
+              viewEmployees();
+            }
+          );
+        });
+    });
+  });
 };
 
 // functional
