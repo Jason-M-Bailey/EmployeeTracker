@@ -113,24 +113,11 @@ const allOptions = () => {
         message: "what would you like to do next:",
         choices: [
           "View",
-          // "View Employees",
-          // "View Employees By Department",
-          // "View Employees By Manager",
-          // "View Departments",
-          // "View Roles",
-          // "View Budget By Department",
-
-          "Add Department",
-          "Add Employee",
-          "Add Role",
-
+          "Add",
           "Remove Department",
           "Remove Employee",
           "Remove Role",
-
-          "Update Employee Role",
-          "Update Employee's Manager",
-
+          "Update Employee",
           "Exit",
         ],
       },
@@ -139,41 +126,24 @@ const allOptions = () => {
     .then((answer) => {
       if (answer.select_option === "View") {
         view();
-      } else if (answer.select_option === "View Employees") {
-        viewEmployees();
-      } else if (answer.select_option === "View Employees By Department") {
-        viewEmployeesByDept();
-      } else if (answer.select_option === "View Employees By Manager") {
-        viewEmployeesByManager();
-      } else if (answer.select_option === "View Departments") {
-        viewDepartments();
-      } else if (answer.select_option === "View Roles") {
-        viewRoles();
-      } else if (answer.select_option === "View Budget By Department") {
-        viewBudgetByDepartment();
-      } else if (answer.select_option === "Add Department") {
-        addDepartment();
-      } else if (answer.select_option === "Add Employee") {
-        addEmployee();
-      } else if (answer.select_option === "Add Role") {
-        addRole();
+      } else if (answer.select_option === "Add") {
+        add();
       } else if (answer.select_option === "Remove Department") {
         removeDepartment();
       } else if (answer.select_option === "Remove Employee") {
         removeEmployee();
       } else if (answer.select_option === "Remove Role") {
         removeRole();
-      } else if (answer.select_option === "Update Employee Role") {
-        updateEmployeeRole();
-      } else if (answer.select_option === "Update Employee's Manager") {
-        updateEmployeesManager();
+      } else if (answer.select_option === "Update Employee") {
+        updateEmployee();
       } else {
         connection.end();
       }
     });
 };
 
-// NOT FUNCTIONAL
+// functional
+// todo: view by manager needs improvement
 const view = () => {
   inquirer
     .prompt([
@@ -289,6 +259,27 @@ const viewBudgetByDepartment = () => {
       allOptions();
     }
   );
+};
+
+const add = () => {
+  inquirer
+    .prompt([
+      {
+        name: "add_options",
+        type: "list",
+        message: "what do you want to add: ",
+        choices: ["Department", "Employee", "Role"],
+      },
+    ])
+    .then((answer) => {
+      if (answer.add_options === "Department") {
+        addDepartment();
+      } else if (answer.add_options === "Employee") {
+        addEmployee();
+      } else if (answer.add_options === "Role") {
+        addRole();
+      } else connection.end();
+    });
 };
 
 // functional
@@ -588,7 +579,7 @@ const removeRole = () => {
 };
 
 // functional
-const updateEmployeeRole = () => {
+const updateEmployee = () => {
   connection.query("SELECT * FROM role;", (err, res) => {
     const roles = res.map((role) => {
       return {
@@ -637,33 +628,4 @@ const updateEmployeeRole = () => {
         });
     });
   });
-};
-
-// functional
-// todo: improve functionality by selecting employee from dynamic list
-// todo: improve functionality by selecting new manager from dynamic list
-const updateEmployeesManager = () => {
-  inquirer
-    .prompt([
-      {
-        name: "employee_id",
-        type: "input",
-        message: "what is the employee's id: ",
-      },
-      {
-        name: "employee_new_manager_id",
-        type: "input",
-        message: "what is the employee's new manager id: ",
-      },
-    ])
-    .then((answer) => {
-      connection.query(
-        "UPDATE employee SET manager_id = ? WHERE id = ?;",
-        [answer.employee_new_manager_id, answer.employee_id],
-        (err, res) => {
-          console.log("employee updated");
-          viewEmployees();
-        }
-      );
-    });
 };
