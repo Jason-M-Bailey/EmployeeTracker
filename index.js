@@ -63,6 +63,16 @@ const dynamicEmployeesArray = () => {
 
 // static queries
 // todo: use placeholders for department_id = ? instead of static
+const viewAdminDept = () => {
+  connection.query(
+    "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 4;",
+    (err, res) => {
+      console.table(res);
+      allOptions();
+    }
+  );
+};
+
 const viewEngineeringDept = () => {
   connection.query(
     "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
@@ -103,12 +113,12 @@ const allOptions = () => {
         message: "what would you like to do next:",
         choices: [
           "View",
-          "View Employees",
-          "View Employees By Department",
-          "View Employees By Manager",
-          "View Departments",
-          "View Roles",
-          "View Budget By Department",
+          // "View Employees",
+          // "View Employees By Department",
+          // "View Employees By Manager",
+          // "View Departments",
+          // "View Roles",
+          // "View Budget By Department",
 
           "Add Department",
           "Add Employee",
@@ -184,15 +194,15 @@ const view = () => {
     .then((answer) => {
       if (answer.view_options === "Employees") {
         viewEmployees();
-      } else if (answer.view_option === "Employees By Department") {
+      } else if (answer.view_options === "Employees By Department") {
         viewEmployeesByDept();
-      } else if (answer.view_option === "Employees By Manager") {
+      } else if (answer.view_options === "Employees By Manager") {
         viewEmployeesByManager();
-      } else if (answer.view_option === "Departments") {
+      } else if (answer.view_options === "Departments") {
         viewDepartments();
-      } else if (answer.view_option === "Roles") {
+      } else if (answer.view_options === "Roles") {
         viewRoles();
-      } else if (answer.view_option === "Budget By Department") {
+      } else if (answer.view_options === "Budget By Department") {
         viewBudgetByDepartment();
       }
     });
@@ -215,6 +225,7 @@ const viewEmployees = () => {
 
 // functional
 // todo: update choices to be dynamic
+// todo: update tables based on dept chosen
 const viewEmployeesByDept = () => {
   inquirer
     .prompt([
@@ -222,12 +233,14 @@ const viewEmployeesByDept = () => {
         name: "select_a_department_please",
         type: "list",
         message: "which dept: ",
-        choices: ["Engineering", "Legal", "Sales"],
+        choices: ["Admin", "Engineering", "Legal", "Sales"],
       },
     ])
 
     .then((answer) => {
-      if (answer.select_a_department_please === "Engineering") {
+      if (answer.select_a_department_please === "Admin") {
+        viewAdminDept();
+      } else if (answer.select_a_department_please === "Engineering") {
         viewEngineeringDept();
       } else if (answer.select_a_department_please === "Legal") {
         viewLegalDept();
@@ -268,8 +281,6 @@ const viewRoles = () => {
 // todo: why is null null showing as first record?
 // todo: newly created departments do not appear in this table, why?
 const viewBudgetByDepartment = () => {
-  dynamicDepartmentsArray();
-
   connection.query(
     "SELECT department.name, SUM(salary) AS Budget FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id GROUP BY department_id;",
     (err, res) => {
@@ -351,9 +362,6 @@ class NewEmployeeInfo {
 }
 
 // functional
-// todo: dynamic list for role
-// todo: dynamic list for manager - how to connect manager_id to employee name
-// todo: capitalize first letter
 const addEmployee = () => {
   connection.query("SELECT * FROM role;", (err, res) => {
     const roles = res.map((role) => {
