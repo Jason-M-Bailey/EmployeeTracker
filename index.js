@@ -25,10 +25,6 @@ connection.connect((err) => {
   allOptions();
 });
 
-let departmentsArray = [];
-let employeesArray = [];
-let rolesArray = [];
-
 // experiment with dynamic arrays
 // todo: able to view dynamic array of roles but unsure how to connect the user's answer to insert into db
 const dynamicDepartmentsArray = () => {
@@ -125,10 +121,6 @@ const allOptions = () => {
           "Update Employee Role",
           "Update Employee's Manager",
 
-          "Dynamic Departments Array",
-          "Dynamic Employees Array",
-          "Dynamic Roles Array",
-
           "Exit",
         ],
       },
@@ -165,15 +157,9 @@ const allOptions = () => {
         updateEmployeeRole();
       } else if (answer.select_option === "Update Employee's Manager") {
         updateEmployeesManager();
-      } else if (answer.select_option === "Dynamic Departments Array") {
-        dynamicDepartmentsArray();
-      } else if (answer.select_option === "Dynamic Employees Array") {
-        dynamicEmployeesArray();
-      } else if (answer.select_option === "Dynamic Roles Array") {
-        dynamicRolesArray();
-      } else if (answer.select_option === "Exit") {
+      } else {
         connection.end();
-      } else connection.end();
+      }
     });
 };
 
@@ -218,7 +204,7 @@ const view = () => {
 // https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_format
 const viewEmployees = () => {
   connection.query(
-    "SELECT employee.id, CONCAT(employee.first_name,  ' ', employee.last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary, CONCAT(Manager.first_name, ' ', Manager.last_name) AS Manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS Manager ON employee.manager_id = Manager.id;",
+    "SELECT employee.id, CONCAT(employee.first_name,  ' ', employee.last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary, CONCAT(Manager.first_name, ' ', Manager.last_name) AS Manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS Manager ON employee.manager_id = Manager.id ORDER BY id;",
     (err, res) => {
       console.table(res);
       console.log("*****");
@@ -228,8 +214,7 @@ const viewEmployees = () => {
 };
 
 // functional
-// todo: list option departmentArray, show only department selected
-// todo: why does next prompt overlap console.table(res);
+// todo: update choices to be dynamic
 const viewEmployeesByDept = () => {
   inquirer
     .prompt([
@@ -304,30 +289,14 @@ class NewDepartmentInfo {
       return new NewDepartmentInfo(name);
     }
     // this . [mysql spelling] = [inquirer prompt spelling]
-    // this.id = new_department_id;
     this.name = new_department_name;
   }
 }
 
 // functional
-// todo: validate department id is not a duplicate
-// todo: capitalize first letter
 const addDepartment = () => {
   inquirer
     .prompt([
-      // {
-      //   name: "new_department_id",
-      //   type: "input",
-      //   message: "give the new department a unique id:",
-      //   validate: (answer) => {
-      //     const pass = answer.match(/^[1-9]\d*$/);
-      //     if (pass) {
-      //       return true;
-      //     }
-      //     return "department id must be a number greater than zero";
-      //   },
-      // },
-
       {
         name: "new_department_name",
         type: "input",
@@ -345,10 +314,7 @@ const addDepartment = () => {
     ])
 
     .then(function (user) {
-      var newDepartment = new NewDepartmentInfo(
-        // user.new_department_id,
-        user.new_department_name
-      );
+      var newDepartment = new NewDepartmentInfo(user.new_department_name);
 
       connection.query(
         "INSERT INTO department SET ?",
@@ -397,8 +363,6 @@ const addEmployee = () => {
       };
     });
 
-    // console.log(roles);
-
     connection.query("SELECT * FROM employee;", (err, res) => {
       const employees = res.map((employee) => {
         return {
@@ -407,15 +371,12 @@ const addEmployee = () => {
         };
       });
 
-      // console.log(employees);
-
       inquirer
         .prompt([
           {
             name: "employee_first_name",
             type: "input",
             message: "what is the employee's first name:",
-
             validate: (answer) => {
               if (
                 answer.match(new RegExp(/^\b[A-Z][a-z]*( [A-Z][a-z]*)*\b$/)) !==
@@ -440,11 +401,6 @@ const addEmployee = () => {
               return "Names must be capitalized";
             },
           },
-
-          // todo: this is where the next 2 prompts should have a dynamic array
-          // todo: employee role
-          // todo: choose manager
-
           {
             name: "employee_role_id",
             type: "list",
@@ -458,10 +414,6 @@ const addEmployee = () => {
             choices: employees,
           },
         ])
-
-        // todo: how to connect role.title to employee.role_id
-        // todo: how to connect CONCAT(employee.first_name, ' ', employee_last_name) as Name to employee.manager_id
-
         .then(function (user) {
           var newEmployee = new NewEmployeeInfo(
             // inquirer prompt names
@@ -487,18 +439,12 @@ const addEmployee = () => {
 
 class NewRoleInfo {
   // inquirer prompt spelling
-  constructor(
-    newRole_id,
-    newRole_title,
-    newRole_salary,
-    newRole_department_id
-  ) {
+  constructor(newRole_title, newRole_salary, newRole_department_id) {
     if (!(this instanceof NewRoleInfo)) {
       // mysql schema spelling
-      return new newRoleInfo(id, title, salary, department_id);
+      return new newRoleInfo(title, salary, department_id);
     }
     // this . [mysql spelling] = [inquirer prompt spelling]
-    this.id = newRole_id;
     this.title = newRole_title;
     this.salary = newRole_salary;
     this.department_id = newRole_department_id;
@@ -512,19 +458,6 @@ class NewRoleInfo {
 const addRole = () => {
   inquirer
     .prompt([
-      {
-        name: "newRole_id",
-        type: "input",
-        message: "what is the id for the role:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "ids must be a number greater than zero";
-        },
-      },
-
       {
         name: "newRole_title",
         type: "input",
@@ -564,7 +497,6 @@ const addRole = () => {
     .then(function (user) {
       var newRole = new NewRoleInfo(
         // inquirer prompt names
-        user.newRole_id,
         user.newRole_title,
         user.newRole_salary,
         user.newRole_department_id
