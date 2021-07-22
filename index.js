@@ -21,7 +21,8 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
-  viewEmployees();
+  // viewEmployees();
+  allOptions();
 });
 
 let departmentsArray = [];
@@ -66,19 +67,6 @@ const dynamicEmployeesArray = () => {
 
 const dynamicRolesArray = () => {
   let rolesArray = [];
-  connection.query("SELECT title FROM role;", (err, res) => {
-    for (let i = 0; i < res.length; i++) {
-      rolesArray.push(res[i].title);
-      console.log("for loop running...");
-      console.log(res[i].title);
-    }
-    console.log("*****");
-    console.log("for loop finished");
-    console.log(rolesArray);
-    console.log("*****");
-  });
-
-  allOptions();
 };
 
 // static queries
@@ -193,7 +181,7 @@ const allOptions = () => {
     });
 };
 
-// NOT FUNCTIONAL 
+// NOT FUNCTIONAL
 const view = () => {
   inquirer
     .prompt([
@@ -214,15 +202,15 @@ const view = () => {
     .then((answer) => {
       if (answer.view_options === "Employees") {
         viewEmployees();
-      } else if (answer.select_option === "Employees By Department") {
+      } else if (answer.view_option === "Employees By Department") {
         viewEmployeesByDept();
-      } else if (answer.select_option === "Employees By Manager") {
+      } else if (answer.view_option === "Employees By Manager") {
         viewEmployeesByManager();
-      } else if (answer.select_option === "Departments") {
+      } else if (answer.view_option === "Departments") {
         viewDepartments();
-      } else if (answer.select_option === "Roles") {
+      } else if (answer.view_option === "Roles") {
         viewRoles();
-      } else if (answer.select_option === "Budget By Department") {
+      } else if (answer.view_option === "Budget By Department") {
         viewBudgetByDepartment();
       }
     });
@@ -235,7 +223,7 @@ const view = () => {
 // https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_format
 const viewEmployees = () => {
   connection.query(
-    "SELECT employee.id, CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;",
+    "SELECT employee.id, CONCAT(employee.first_name,  ' ', employee.last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary, CONCAT(Manager.first_name, ' ', Manager.last_name) AS Manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS Manager ON employee.manager_id = Manager.id;",
     (err, res) => {
       console.table(res);
       console.log("*****");
@@ -444,84 +432,100 @@ class NewEmployeeInfo {
 // todo: dynamic list for manager - how to connect manager_id to employee name
 // todo: capitalize first letter
 const addEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        name: "employee_first_name",
-        type: "input",
-        message: "what is the employee's first name:",
-
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-      {
-        name: "employee_last_name",
-        type: "input",
-        message: "what is the employee's last name:",
-        validate: (answer) => {
-          if (answer !== "") {
-            return true;
-          }
-          return "Names must have one character or more.";
-        },
-      },
-
-      // todo: this is where the next 2 prompts should have a dynamic array
-      // todo: employee role
-      // todo: choose manager
-
-      {
-        name: "employee_role_id",
-        type: "input",
-        message: "what is the employee's role id:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "role id must be a number greater than zero";
-        },
-      },
-      {
-        name: "employee_manager_id",
-        type: "input",
-        message: "enter employee id of their manager: ",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "manager id must be a number greater than zero";
-        },
-      },
-    ])
-
-    // todo: how to connect role.title to employee.role_id
-    // todo: how to connect CONCAT(employee.first_name, ' ', employee_last_name) as Name to employee.manager_id
-
-    .then(function (user) {
-      var newEmployee = new NewEmployeeInfo(
-        // inquirer prompt names
-        user.employee_first_name,
-        user.employee_last_name,
-        user.employee_role_id,
-        user.employee_manager_id
-      );
-      connection.query(
-        "INSERT INTO employee SET ?",
-        newEmployee,
-        function (err, res) {
-          if (err) throw err;
-          console.log("new employee added to database");
-          console.log("*****");
-          viewEmployees();
-        }
-      );
+  connection.query("SELECT * FROM role;", (err, res) => {
+    const roles = res.map((role) => {
+      return {
+        name: role.title,
+        value: role.id,
+      };
     });
+
+    // console.log(roles);
+
+    connection.query("SELECT * FROM employee;", (err, res) => {
+      const employees = res.map((employee) => {
+        return {
+          name: employee.first_name + " " + employee.last_name,
+          value: employee.id,
+        };
+      });
+
+      // console.log(employees);
+
+      inquirer
+        .prompt([
+          {
+            name: "employee_first_name",
+            type: "input",
+            message: "what is the employee's first name:",
+
+            validate: (answer) => {
+              if (
+                answer.match(new RegExp(/^\b[A-Z][a-z]*( [A-Z][a-z]*)*\b$/)) !==
+                null
+              ) {
+                return true;
+              }
+              return "Names must be capitalized";
+            },
+          },
+          {
+            name: "employee_last_name",
+            type: "input",
+            message: "what is the employee's last name:",
+            validate: (answer) => {
+              if (
+                answer.match(new RegExp(/^\b[A-Z][a-z]*( [A-Z][a-z]*)*\b$/)) !==
+                null
+              ) {
+                return true;
+              }
+              return "Names must be capitalized";
+            },
+          },
+
+          // todo: this is where the next 2 prompts should have a dynamic array
+          // todo: employee role
+          // todo: choose manager
+
+          {
+            name: "employee_role_id",
+            type: "list",
+            message: "what is the employee's role:",
+            choices: roles,
+          },
+          {
+            name: "employee_manager_id",
+            type: "list",
+            message: "choose with employee is their manager: ",
+            choices: employees,
+          },
+        ])
+
+        // todo: how to connect role.title to employee.role_id
+        // todo: how to connect CONCAT(employee.first_name, ' ', employee_last_name) as Name to employee.manager_id
+
+        .then(function (user) {
+          var newEmployee = new NewEmployeeInfo(
+            // inquirer prompt names
+            user.employee_first_name,
+            user.employee_last_name,
+            user.employee_role_id,
+            user.employee_manager_id
+          );
+          connection.query(
+            "INSERT INTO employee SET ?",
+            newEmployee,
+            function (err, res) {
+              if (err) throw err;
+              console.log("new employee added to database");
+              console.log("*****");
+              viewEmployees();
+            }
+          );
+        });
+    });
+  });
 };
 
 class NewRoleInfo {
