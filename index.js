@@ -65,10 +65,6 @@ const dynamicEmployeesArray = () => {
   allOptions();
 };
 
-const dynamicRolesArray = () => {
-  let rolesArray = [];
-};
-
 // static queries
 // todo: use placeholders for department_id = ? instead of static
 const viewEngineeringDept = () => {
@@ -217,7 +213,6 @@ const view = () => {
 };
 
 // functional
-// todo: add Manager column with CONCAT(first_name,  ' ', last_name) AS Manager
 // todo: how to add comma in the salary field
 // mysql > SELECT FORMAT(12332.2,0); -> '12,332'
 // https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_format
@@ -230,47 +225,6 @@ const viewEmployees = () => {
       allOptions();
     }
   );
-
-  // inquirer
-  // .prompt([
-  //   {
-  //     name: "select_department",
-  //     type: "list",
-  //     message: "which department do you want to view: ",
-  //     choices: ["Engineering", "Legal", "Sales"],
-  //   }
-  // ])
-
-  // .then((answer) => {
-  //   if (answer.select_department === "Engineering") {
-  //     connection.query(
-  //         "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 1;",
-  //         (err, res) => {
-  //           console.table(res);
-  //           console.log("*****");
-  //           // allOptions();
-  //         }
-  //       );
-  //   } else if (answer.select_option === "Legal") {
-  //     connection.query(
-  //       "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 2;",
-  //       (err, res) => {
-  //         console.table(res);
-  //         console.log("*****");
-  //         // allOptions();
-  //       }
-  //     );
-  //   } else {
-  //     connection.query(
-  //       "SELECT CONCAT(first_name,  ' ', last_name) AS Name, department.name AS Department, title AS Title, salary AS Salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE department_id = 3;",
-  //       (err, res) => {
-  //         console.table(res);
-  //         console.log("*****");
-  //         // allOptions();
-  //       }
-  //     );
-  //   }
-  // })
 };
 
 // functional
@@ -344,13 +298,13 @@ const viewBudgetByDepartment = () => {
 // functional
 class NewDepartmentInfo {
   // constructor elements are based off inquirer prompts
-  constructor(new_department_id, new_department_name) {
+  constructor(new_department_name) {
     if (!(this instanceof NewDepartmentInfo)) {
       // based on the mySQL schema
-      return new NewDepartmentInfo(id, name);
+      return new NewDepartmentInfo(name);
     }
     // this . [mysql spelling] = [inquirer prompt spelling]
-    this.id = new_department_id;
+    // this.id = new_department_id;
     this.name = new_department_name;
   }
 }
@@ -361,35 +315,38 @@ class NewDepartmentInfo {
 const addDepartment = () => {
   inquirer
     .prompt([
-      {
-        name: "new_department_id",
-        type: "input",
-        message: "give the new department a unique id:",
-        validate: (answer) => {
-          const pass = answer.match(/^[1-9]\d*$/);
-          if (pass) {
-            return true;
-          }
-          return "department id must be a number greater than zero";
-        },
-      },
+      // {
+      //   name: "new_department_id",
+      //   type: "input",
+      //   message: "give the new department a unique id:",
+      //   validate: (answer) => {
+      //     const pass = answer.match(/^[1-9]\d*$/);
+      //     if (pass) {
+      //       return true;
+      //     }
+      //     return "department id must be a number greater than zero";
+      //   },
+      // },
 
       {
         name: "new_department_name",
         type: "input",
         message: "what is the name of the new department:",
         validate: (answer) => {
-          if (answer !== "") {
+          if (
+            answer.match(new RegExp(/^\b[A-Z][a-z]*( [A-Z][a-z]*)*\b$/)) !==
+            null
+          ) {
             return true;
           }
-          return "Names must have one character or more.";
+          return "Names must be capitalized";
         },
       },
     ])
 
     .then(function (user) {
       var newDepartment = new NewDepartmentInfo(
-        user.new_department_id,
+        // user.new_department_id,
         user.new_department_name
       );
 
